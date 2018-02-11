@@ -34,7 +34,7 @@ func readCommands(config config.Config) map[string]Command {
 
 func readHosts(config config.Config) map[string][]string {
 	hosts := make(map[string][]string)
-	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir + "/hosts")
+	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/hosts")
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
@@ -65,9 +65,10 @@ func CmdRun(c *cli.Context) {
 			names[i] = name
 			i++
 		}
-		fmt.Fprintf(os.Stderr, "%s: custom command \"%s\" is not defined\n", c.App.Name, commandName)
-		fmt.Fprintf(os.Stdout, "Known list of custom commands are: %s\n", strings.Join(names, ", "))
-		os.Exit(1)
+		adhocCommand := strings.Join(args.Tail(), " ")
+		fmt.Fprintf(os.Stdout, "%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
+			c.App.Name, commandName, adhocCommand)
+		command = Command{"ad-hoc", adhocCommand}
 	}
 	hosts := readHosts(config.DefaultConfig)
 	target := hosts[host]
