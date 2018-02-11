@@ -72,4 +72,5 @@ func CmdRun(c *cli.Context) {
 	hosts := readHosts(config.DefaultConfig)
 	target := hosts[host]
 	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, target)
+	SSH(target[0], command.command)
 }
