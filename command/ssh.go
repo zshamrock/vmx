@@ -9,13 +9,21 @@ import (
 	"github.com/kevinburke/ssh_config"
 	"path/filepath"
 	"io/ioutil"
+	"strings"
 )
 
 // SSH implements scp connection to the remote instance
 func SSH(host, command string) {
 	user := ssh_config.Get(host, "User")
 	hostname := ssh_config.Get(host, "Hostname")
-	pk, _ := ioutil.ReadFile(filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa"))
+	identityFile := ssh_config.Get(host, "IdentityFile")
+	var identityFilePath string
+	if len(identityFile) == 0 || strings.Compare(identityFile, "~/.ssh/identity") == 0 {
+		identityFilePath = filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
+	} else {
+		identityFilePath = os.ExpandEnv(strings.Replace(identityFile, "~", "${HOME}", -1))
+	}
+	pk, _ := ioutil.ReadFile(identityFilePath)
 	signer, _ := ssh.ParsePrivateKey([]byte(pk))
 	config := &ssh.ClientConfig{
 		User: user,
