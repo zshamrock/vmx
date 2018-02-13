@@ -71,7 +71,13 @@ func CmdRun(c *cli.Context) {
 		command = Command{"ad-hoc", adhocCommand}
 	}
 	hosts := readHosts(config.DefaultConfig)
-	target := hosts[host]
+	target, ok := hosts[host]
+	if !ok {
+		target = make([]string, 0, 1)
+		target = append(target, host)
+		fmt.Fprintf(os.Stdout, "%s: host group \"%s\" is not defined, interpret it as the ad-hoc host\n",
+			c.App.Name, host)
+	}
 	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, target)
 	SSH(target[0], command.command)
 }
