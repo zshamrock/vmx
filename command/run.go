@@ -73,10 +73,20 @@ func CmdRun(c *cli.Context) {
 	hosts := readHosts(config.DefaultConfig)
 	target, ok := hosts[host]
 	if !ok {
-		target = make([]string, 0, 1)
-		target = append(target, host)
-		fmt.Fprintf(os.Stdout, "%s: host group \"%s\" is not defined, interpret it as the ad-hoc host\n",
-			c.App.Name, host)
+		// First then try whether host:children exists
+		target, ok = hosts[host + ":children"]
+		if ok {
+			children := make([]string, 0, len(target))
+			for _, t := range target {
+				children = append(children, hosts[t]...)
+			}
+			target = children
+		} else {
+			target = make([]string, 0, 1)
+			target = append(target, host)
+			fmt.Fprintf(os.Stdout, "%s: host group \"%s\" is not defined, interpret it as the ad-hoc host\n",
+				c.App.Name, host)
+		}
 	}
 	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, target)
 	ch := make(chan int, len(target))
