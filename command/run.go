@@ -79,5 +79,11 @@ func CmdRun(c *cli.Context) {
 			c.App.Name, host)
 	}
 	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, target)
-	SSH(target[0], command.command)
+	ch := make(chan int, len(target))
+	for _, t := range target {
+		go SSH(t, command.command, ch)
+	}
+	for i := 0; i < len(target); i++ {
+		<- ch
+	}
 }

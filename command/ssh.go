@@ -13,7 +13,7 @@ import (
 )
 
 // SSH implements scp connection to the remote instance
-func SSH(host, command string) {
+func SSH(host, command string, ch chan int) {
 	user := ssh_config.Get(host, "User")
 	hostname := ssh_config.Get(host, "Hostname")
 	identityFile := ssh_config.Get(host, "IdentityFile")
@@ -46,4 +46,5 @@ func SSH(host, command string) {
 	if err := session.Run(command); err != nil {
 		log.Panicln("Failed to run:", err.Error())
 	}
+	ch <- 0
 }
