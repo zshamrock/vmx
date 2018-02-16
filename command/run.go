@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	CommandsConfigFileName        = "commands"
-	HostsConfigFileName           = "hosts"
-	SectionCommandKeyName         = "command"
+	CommandsConfigFileName = "commands"
+	HostsConfigFileName    = "hosts"
+	SectionCommandKeyName  = "command"
+
 	defaultSectionName            = "DEFAULT"
 	hostsGroupArgsIndex           = 0
 	commandNameArgsIndex          = 1
@@ -125,4 +126,5 @@ func getHosts(c *cli.Context) []string {
 				c.App.Name, hostsGroup)
 		}
 	}
+	return hosts
 }
