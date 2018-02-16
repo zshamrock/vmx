@@ -9,7 +9,13 @@ import (
 	"github.com/zshamrock/vmx/config"
 )
 
-const commandNameConfirmationSuffix = "!"
+const (
+	defaultSectionName            = "DEFAULT"
+	hostsGroupArgsIndex           = 0
+	commandNameArgsIndex          = 1
+	commandNameConfirmationSuffix = "!"
+	hostsGroupChildrenSuffix      = ":children"
+)
 
 type Command struct {
 	name, command        string
@@ -27,7 +33,7 @@ func readCommands(config config.Config) map[string]Command {
 	// There is always DEFAULT section, so exclude that one from the commands capacity
 	for _, section := range sections {
 		name := section.Name()
-		if name == "DEFAULT" {
+		if name == defaultSectionName {
 			continue
 		}
 		requiresConfirmation := strings.HasSuffix(name, commandNameConfirmationSuffix)
@@ -40,8 +46,8 @@ func readCommands(config config.Config) map[string]Command {
 	return commands
 }
 
-func readHosts(config config.Config) map[string][]string {
-	hosts := make(map[string][]string)
+func readHostsGroups(config config.Config) map[string][]string {
+	groups := make(map[string][]string)
 	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/hosts")
 	cfg.BlockMode = false
 	if err != nil {
@@ -51,58 +57,40 @@ func readHosts(config config.Config) map[string][]string {
 	// There is always DEFAULT section, so exclude that one from the commands capacity
 	for _, section := range sections {
 		name := section.Name()
-		if name == "DEFAULT" {
+		if name == defaultSectionName {
 			continue
 		}
-		hosts[name] = section.KeyStrings()
+		groups[name] = section.KeyStrings()
 	}
-	return hosts
+	return groups
 }
 
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
-	args := c.Args()
-	host := args.Get(0)
-	commandName := args.Get(1)
-	command := getCommand(commandName, c)
-	hosts := readHosts(config.DefaultConfig)
-	target, ok := hosts[host]
-	if !ok {
-		// First then try whether host:children exists
-		target, ok = hosts[host+":children"]
-		if ok {
-			children := make([]string, 0, len(target))
-			for _, t := range target {
-				children = append(children, hosts[t]...)
-			}
-			target = children
-		} else {
-			target = make([]string, 0, 1)
-			target = append(target, host)
-			fmt.Fprintf(os.Stdout, "%s: host group \"%s\" is not defined, interpret it as the ad-hoc host\n",
-				c.App.Name, host)
-		}
-	}
+	command := getCommand(c)
+	hosts := getHosts(c)
 	var confirmation string
 	if command.requiresConfirmation {
-		fmt.Fprintf(os.Stdout, "Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, target)
+		fmt.Fprintf(os.Stdout, "Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, hosts)
 		fmt.Scanln(&confirmation)
 	}
 	confirmation = strings.ToLower(confirmation)
 	if confirmation != "yes" && confirmation != "y" {
 		return
 	}
-	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, target)
-	ch := make(chan int, len(target))
-	for _, t := range target {
-		go SSH(t, command.command, ch)
+	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, hosts)
+	ch := make(chan int, len(hosts))
+	for _, host := range hosts {
+		go SSH(host, command.command, ch)
 	}
-	for i := 0; i < len(target); i++ {
+	for i := 0; i < len(hosts); i++ {
 		<-ch
 	}
 }
 
-func getCommand(commandName string, c *cli.Context) Command {
+func getCommand(c *cli.Context) Command {
+	args := c.Args()
+	commandName := args.Get(commandNameArgsIndex)
 	commands := readCommands(config.DefaultConfig)
 	command, ok := commands[commandName]
 	if !ok {
@@ -112,4 +100,26 @@ func getCommand(commandName string, c *cli.Context) Command {
 		command = Command{"ad-hoc", adhocCommand, false}
 	}
 	return command
+}
+
+func getHosts(c *cli.Context) []string {
+	args := c.Args()
+	hostsGroup := args.Get(hostsGroupArgsIndex)
+	hostsGroups := readHostsGroups(config.DefaultConfig)
+	hosts, ok := hostsGroups[hostsGroup]
+	if !ok {
+		// First then try whether host:children exists
+		hosts, ok = hostsGroups[hostsGroup+hostsGroupChildrenSuffix]
+		if ok {
+			children := make([]string, 0, len(hosts))
+			for _, group := range hosts {
+				children = append(children, hostsGroups[group]...)
+			}
+			hosts = children
+		} else {
+			hosts = []string{hostsGroup}
+			fmt.Fprintf(os.Stdout, "%s: hosts group \"%s\" is not defined, interpret it as the ad-hoc host\n",
+				c.App.Name, hostsGroup)
+		}
+	}
 }
