@@ -36,7 +36,7 @@ func CmdRun(c *cli.Context) {
 		fmt.Scanln(&confirmation)
 	}
 	confirmation = strings.ToLower(confirmation)
-	if confirmation != "yes" && confirmation != "y" {
+	if command.requiresConfirmation && confirmation != "yes" && confirmation != "y" {
 		return
 	}
 	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, hosts)

@@ -21,7 +21,7 @@ const (
 
 // SSH implements scp connection to the remote instance
 func SSH(host, command string, ch chan int) {
-	fmt.Fprintf(os.Stdout, "Running command %s on host %s\n", command, host)
+	fmt.Fprintf(os.Stdout, "Running command: %s on host %s\n", command, host)
 	user := ssh_config.Get(host, SshConfigUserKey)
 	hostname := ssh_config.Get(host, SshConfigHostnameKey)
 	identityFile := ssh_config.Get(host, SshConfigIdentityFileKey)
