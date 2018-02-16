@@ -19,7 +19,7 @@ func SSH(host, command string, ch chan int) {
 	hostname := ssh_config.Get(host, "Hostname")
 	identityFile := ssh_config.Get(host, "IdentityFile")
 	var identityFilePath string
-	if len(identityFile) == 0 || strings.Compare(identityFile, "~/.ssh/identity") == 0 {
+	if len(identityFile) == 0 || identityFile ==  "~/.ssh/identity" {
 		identityFilePath = filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
 	} else {
 		identityFilePath = os.ExpandEnv(strings.Replace(identityFile, "~", "${HOME}", -1))
