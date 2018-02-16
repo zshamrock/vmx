@@ -26,49 +26,6 @@ type Command struct {
 	requiresConfirmation bool
 }
 
-func readCommands(config config.Config) map[string]Command {
-	commands := make(map[string]Command)
-	cfg, err := ini.Load(config.Dir + "/" + CommandsConfigFileName)
-	cfg.BlockMode = false
-	if err != nil {
-		os.Exit(1)
-	}
-	sections := cfg.Sections()
-	// There is always DEFAULT section, so exclude that one from the commands capacity
-	for _, section := range sections {
-		name := section.Name()
-		if name == defaultSectionName {
-			continue
-		}
-		requiresConfirmation := strings.HasSuffix(name, commandNameConfirmationSuffix)
-		name = strings.TrimSuffix(name, commandNameConfirmationSuffix)
-		commands[name] = Command{
-			name,
-			section.Key(SectionCommandKeyName).String(),
-			requiresConfirmation}
-	}
-	return commands
-}
-
-func readHostsGroups(config config.Config) map[string][]string {
-	groups := make(map[string][]string)
-	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/"+HostsConfigFileName)
-	cfg.BlockMode = false
-	if err != nil {
-		os.Exit(1)
-	}
-	sections := cfg.Sections()
-	// There is always DEFAULT section, so exclude that one from the commands capacity
-	for _, section := range sections {
-		name := section.Name()
-		if name == defaultSectionName {
-			continue
-		}
-		groups[name] = section.KeyStrings()
-	}
-	return groups
-}
-
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
 	command := getCommand(c)
@@ -106,6 +63,30 @@ func getCommand(c *cli.Context) Command {
 	return command
 }
 
+func readCommands(config config.Config) map[string]Command {
+	commands := make(map[string]Command)
+	cfg, err := ini.Load(config.Dir + "/" + CommandsConfigFileName)
+	cfg.BlockMode = false
+	if err != nil {
+		os.Exit(1)
+	}
+	sections := cfg.Sections()
+	// There is always DEFAULT section, so exclude that one from the commands capacity
+	for _, section := range sections {
+		name := section.Name()
+		if name == defaultSectionName {
+			continue
+		}
+		requiresConfirmation := strings.HasSuffix(name, commandNameConfirmationSuffix)
+		name = strings.TrimSuffix(name, commandNameConfirmationSuffix)
+		commands[name] = Command{
+			name,
+			section.Key(SectionCommandKeyName).String(),
+			requiresConfirmation}
+	}
+	return commands
+}
+
 func getHosts(c *cli.Context) []string {
 	args := c.Args()
 	hostsGroup := args.Get(hostsGroupArgsIndex)
@@ -127,4 +108,23 @@ func getHosts(c *cli.Context) []string {
 		}
 	}
 	return hosts
+}
+
+func readHostsGroups(config config.Config) map[string][]string {
+	groups := make(map[string][]string)
+	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/"+HostsConfigFileName)
+	cfg.BlockMode = false
+	if err != nil {
+		os.Exit(1)
+	}
+	sections := cfg.Sections()
+	// There is always DEFAULT section, so exclude that one from the commands capacity
+	for _, section := range sections {
+		name := section.Name()
+		if name == defaultSectionName {
+			continue
+		}
+		groups[name] = section.KeyStrings()
+	}
+	return groups
 }
