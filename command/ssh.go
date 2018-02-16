@@ -12,14 +12,21 @@ import (
 	"strings"
 )
 
+const (
+	SshConfigUserKey         = "User"
+	SshConfigHostnameKey     = "Hostname"
+	SshConfigIdentityFileKey = "IdentityFile"
+	ignoredIdentitySshFile   = "~/.ssh/identity"
+)
+
 // SSH implements scp connection to the remote instance
 func SSH(host, command string, ch chan int) {
 	fmt.Fprintf(os.Stdout, "Running command %s on host %s\n", command, host)
-	user := ssh_config.Get(host, "User")
-	hostname := ssh_config.Get(host, "Hostname")
-	identityFile := ssh_config.Get(host, "IdentityFile")
+	user := ssh_config.Get(host, SshConfigUserKey)
+	hostname := ssh_config.Get(host, SshConfigHostnameKey)
+	identityFile := ssh_config.Get(host, SshConfigIdentityFileKey)
 	var identityFilePath string
-	if len(identityFile) == 0 || identityFile ==  "~/.ssh/identity" {
+	if len(identityFile) == 0 || identityFile == ignoredIdentitySshFile {
 		identityFilePath = filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
 	} else {
 		identityFilePath = os.ExpandEnv(strings.Replace(identityFile, "~", "${HOME}", -1))

@@ -10,6 +10,9 @@ import (
 )
 
 const (
+	CommandsConfigFileName        = "commands"
+	HostsConfigFileName           = "hosts"
+	SectionCommandKeyName         = "command"
 	defaultSectionName            = "DEFAULT"
 	hostsGroupArgsIndex           = 0
 	commandNameArgsIndex          = 1
@@ -24,7 +27,7 @@ type Command struct {
 
 func readCommands(config config.Config) map[string]Command {
 	commands := make(map[string]Command)
-	cfg, err := ini.Load(config.Dir + "/commands")
+	cfg, err := ini.Load(config.Dir + "/" + CommandsConfigFileName)
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
@@ -40,7 +43,7 @@ func readCommands(config config.Config) map[string]Command {
 		name = strings.TrimSuffix(name, commandNameConfirmationSuffix)
 		commands[name] = Command{
 			name,
-			section.Key("command").String(),
+			section.Key(SectionCommandKeyName).String(),
 			requiresConfirmation}
 	}
 	return commands
@@ -48,7 +51,7 @@ func readCommands(config config.Config) map[string]Command {
 
 func readHostsGroups(config config.Config) map[string][]string {
 	groups := make(map[string][]string)
-	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/hosts")
+	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/"+HostsConfigFileName)
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
