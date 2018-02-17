@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	CommandsConfigFileName = "commands"
-	HostsConfigFileName    = "hosts"
-	SectionCommandKeyName  = "command"
+	CommandsConfigFileName   = "commands"
+	HostsConfigFileName      = "hosts"
+	SectionCommandKeyName    = "command"
+	SectionWorkingDirKeyName = "working_dir"
 
 	defaultSectionName            = "DEFAULT"
 	hostsGroupArgsIndex           = 0
@@ -22,8 +23,8 @@ const (
 )
 
 type Command struct {
-	name, command        string
-	requiresConfirmation bool
+	name, command, workingDir string
+	requiresConfirmation      bool
 }
 
 // CmdRun runs custom command
@@ -39,10 +40,14 @@ func CmdRun(c *cli.Context) {
 	if command.requiresConfirmation && confirmation != "yes" && confirmation != "y" {
 		return
 	}
-	fmt.Fprintf(os.Stdout, "Running command: %s on %v\n", command.command, hosts)
+	cmd := command.command
+	if command.workingDir != "" {
+		cmd = fmt.Sprintf("cd %s && %s", command.workingDir, cmd)
+	}
+	fmt.Fprintf(os.Stdout, "Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
 	ch := make(chan int, len(hosts))
 	for _, host := range hosts {
-		go SSH(host, command.command, ch)
+		go SSH(host, cmd, ch)
 	}
 	for i := 0; i < len(hosts); i++ {
 		<-ch
@@ -58,7 +63,7 @@ func getCommand(c *cli.Context) Command {
 		adhocCommand := strings.Join(c.Args().Tail(), " ")
 		fmt.Fprintf(os.Stdout, "%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
 			c.App.Name, commandName, adhocCommand)
-		command = Command{"ad-hoc", adhocCommand, false}
+		command = Command{"ad-hoc", adhocCommand, "", false}
 	}
 	return command
 }
@@ -79,9 +84,14 @@ func readCommands(config config.Config) map[string]Command {
 		}
 		requiresConfirmation := strings.HasSuffix(name, commandNameConfirmationSuffix)
 		name = strings.TrimSuffix(name, commandNameConfirmationSuffix)
+		workingDir := ""
+		if section.HasKey(SectionWorkingDirKeyName) {
+			workingDir = section.Key(SectionWorkingDirKeyName).String()
+		}
 		commands[name] = Command{
 			name,
 			section.Key(SectionCommandKeyName).String(),
+			workingDir,
 			requiresConfirmation}
 	}
 	return commands
