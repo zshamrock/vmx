@@ -27,6 +27,16 @@ type Command struct {
 	requiresConfirmation      bool
 }
 
+var commands map[string]Command
+var hostsGroups map[string][]string
+
+func init() {
+	fmt.Println("Reading commands and hosts groups...")
+	cfg := config.DefaultConfig
+	commands = readCommands(cfg)
+	hostsGroups = readHostsGroups(cfg)
+}
+
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
 	command := getCommand(c)
@@ -57,7 +67,6 @@ func CmdRun(c *cli.Context) {
 func getCommand(c *cli.Context) Command {
 	args := c.Args()
 	commandName := args.Get(commandNameArgsIndex)
-	commands := readCommands(config.DefaultConfig)
 	command, ok := commands[commandName]
 	if !ok {
 		adhocCommand := strings.Join(c.Args().Tail(), " ")
@@ -100,7 +109,6 @@ func readCommands(config config.Config) map[string]Command {
 func getHosts(c *cli.Context) []string {
 	args := c.Args()
 	hostsGroup := args.Get(hostsGroupArgsIndex)
-	hostsGroups := readHostsGroups(config.DefaultConfig)
 	hosts, ok := hostsGroups[hostsGroup]
 	if !ok {
 		// First then try whether host:children exists
