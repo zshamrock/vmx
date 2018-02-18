@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
-	"os"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ func CmdRun(c *cli.Context) {
 	hosts := getHosts(c)
 	var confirmation string
 	if command.requiresConfirmation {
-		fmt.Fprintf(os.Stdout, "Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, hosts)
+		fmt.Printf("Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, hosts)
 		fmt.Scanln(&confirmation)
 	}
 	confirmation = strings.ToLower(confirmation)
@@ -30,7 +29,7 @@ func CmdRun(c *cli.Context) {
 	if command.workingDir != "" {
 		cmd = fmt.Sprintf("cd %s && %s", command.workingDir, cmd)
 	}
-	fmt.Fprintf(os.Stdout, "Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
+	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
 	ch := make(chan int, len(hosts))
 	for _, host := range hosts {
 		go SSH(host, cmd, ch)
@@ -46,7 +45,7 @@ func getCommand(c *cli.Context) Command {
 	command, ok := commands[commandName]
 	if !ok {
 		adhocCommand := strings.Join(c.Args().Tail(), " ")
-		fmt.Fprintf(os.Stdout, "%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
+		fmt.Printf("%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
 			c.App.Name, commandName, adhocCommand)
 		command = Command{"ad-hoc", adhocCommand, "", false}
 	}
@@ -68,7 +67,7 @@ func getHosts(c *cli.Context) []string {
 			hosts = children
 		} else {
 			hosts = []string{hostsGroup}
-			fmt.Fprintf(os.Stdout, "%s: hosts group \"%s\" is not defined, interpret it as the ad-hoc host\n",
+			fmt.Printf("%s: hosts group \"%s\" is not defined, interpret it as the ad-hoc host\n",
 				c.App.Name, hostsGroup)
 		}
 	}

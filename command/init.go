@@ -27,7 +27,7 @@ var commands map[string]Command
 var hostsGroups map[string][]string
 
 func init() {
-	fmt.Fprintln(os.Stdout, "Reading commands and hosts groups...")
+	fmt.Println("Reading commands and hosts groups...")
 	cfg := config.DefaultConfig
 	commands = readCommands(cfg)
 	hostsGroups = readHostsGroups(cfg)
