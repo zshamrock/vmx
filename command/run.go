@@ -13,7 +13,7 @@ const (
 	CommandsConfigFileName   = "commands"
 	HostsConfigFileName      = "hosts"
 	SectionCommandKeyName    = "command"
-	SectionWorkingDirKeyName = "working_dir"
+	SectionWorkingDirKeyName = "workingdir"
 
 	defaultSectionName            = "DEFAULT"
 	hostsGroupArgsIndex           = 0
