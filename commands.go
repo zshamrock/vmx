@@ -20,6 +20,14 @@ var Commands = []cli.Command{
 		Action: command.CmdRun,
 		Flags:  []cli.Flag{},
 	},
+	{
+		Name:  "list",
+		Usage: "List available custom commands",
+		Description: `Example of usage is below:
+    list    => list available custom commands defined in the ~/.vmx/commands`,
+		Action: command.CmdList,
+		Flags:  []cli.Flag{},
+	},
 }
 
 // CommandNotFound is used by cli to display an error message when unknown command is asked
