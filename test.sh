@@ -17,6 +17,9 @@ function ok {
     read
 }
 
+# build the latest version
+go build
+
 testcase "defined host defined command"
 ./vmx run messaging-prod mem
 ok
