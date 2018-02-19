@@ -48,6 +48,10 @@ testcase "list command"
 ./vmx list
 ok
 
+testcase "all hosts group"
+./vmx run all mem
+ok
+
 testcase "tail-ing/following"
 ./vmx run rest-prod1 less-logs
 ok
