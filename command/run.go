@@ -10,6 +10,7 @@ const (
 	hostsGroupArgsIndex      = 0
 	commandNameArgsIndex     = 1
 	hostsGroupChildrenSuffix = ":children"
+	allHostsGroup            = "all"
 )
 
 // CmdRun runs custom command
@@ -55,6 +56,19 @@ func getCommand(c *cli.Context) Command {
 func getHosts(c *cli.Context) []string {
 	args := c.Args()
 	hostsGroup := args.Get(hostsGroupArgsIndex)
+	return getHostsByGroup(c, hostsGroup)
+}
+
+func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
+	if hostsGroup == allHostsGroup {
+		allHosts := make([]string, 0, len(hostsGroups))
+		for _, hosts := range hostsGroups {
+			for _, host := range hosts {
+				allHosts = append(allHosts, getHostsByGroup(c, host)...)
+			}
+		}
+		return allHosts
+	}
 	hosts, ok := hostsGroups[hostsGroup]
 	if !ok {
 		// First then try whether host:children exists
