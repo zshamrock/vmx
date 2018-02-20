@@ -12,6 +12,7 @@ func main() {
 	app.Version = Version
 	app.Authors = []cli.Author{{Name: "Aliaksandr Kazlou"}}
 	app.Usage = usage()
+	app.EnableBashCompletion = true
 
 	app.Flags = GlobalFlags
 	app.Commands = Commands

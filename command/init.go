@@ -1,11 +1,11 @@
 package command
 
 import (
-	"fmt"
 	"github.com/zshamrock/vmx/config"
 	"gopkg.in/ini.v1"
 	"os"
 	"strings"
+	"sort"
 )
 
 const (
@@ -27,7 +27,6 @@ var commands map[string]Command
 var hostsGroups map[string][]string
 
 func init() {
-	fmt.Println("Reading commands and hosts groups...")
 	cfg := config.DefaultConfig
 	commands = readCommands(cfg)
 	hostsGroups = readHostsGroups(cfg)
@@ -79,4 +78,26 @@ func readHostsGroups(config config.Config) map[string][]string {
 		groups[name] = section.KeyStrings()
 	}
 	return groups
+}
+
+func GetCommandNames() []string {
+	names := make([]string, 0, len(commands))
+	for _, command := range commands {
+		names = append(names, command.name)
+	}
+	sort.Strings(names)
+	return names
+}
+
+func GetHostNames() []string {
+	names := make([]string, 0, len(hostsGroups))
+	for name := range hostsGroups {
+		if strings.HasSuffix(name, hostsGroupChildrenSuffix) {
+			names = append(names, strings.TrimSuffix(name, hostsGroupChildrenSuffix))
+		} else {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	return names
 }

@@ -19,6 +19,17 @@ var Commands = []cli.Command{
     run logs    => run logs command defined in the ~/.vmx/commands`,
 		Action: command.CmdRun,
 		Flags:  []cli.Flag{},
+		BashComplete: func(c *cli.Context) {
+			var names []string
+			if c.NArg() == 0 {
+				names = command.GetHostNames()
+			} else {
+				names = command.GetCommandNames()
+			}
+			for _, name := range names {
+				fmt.Println(name)
+			}
+		},
 	},
 	{
 		Name:  "list",
