@@ -17,8 +17,9 @@ var Commands = []cli.Command{
 		Usage: "Run custom command",
 		Description: `Example of usage is below:
     run logs    => run logs command defined in the ~/.vmx/commands`,
-		Action: command.CmdRun,
-		Flags:  []cli.Flag{},
+		Action:          command.CmdRun,
+		Flags:           []cli.Flag{},
+		SkipFlagParsing: true,
 		BashComplete: func(c *cli.Context) {
 			var names []string
 			if c.NArg() == 0 {
