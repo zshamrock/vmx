@@ -5,6 +5,9 @@ import (
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"github.com/zshamrock/vmx/command"
+	"github.com/kevinburke/ssh_config"
+	"path/filepath"
+	"sort"
 )
 
 // GlobalFlags used
@@ -21,9 +24,19 @@ var Commands = []cli.Command{
 		Flags:           []cli.Flag{},
 		SkipFlagParsing: true,
 		BashComplete: func(c *cli.Context) {
-			var names []string
+			names := make([]string, 0)
 			if c.NArg() == 0 {
-				names = command.GetHostNames()
+				f, err := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+				if err != nil {
+					cfg, err := ssh_config.Decode(f)
+					if err != nil {
+						for _, host := range cfg.Hosts {
+							names = append(names, host.String())
+						}
+					}
+				}
+				names = append(names, command.GetHostNames()...)
+				sort.Strings(names)
 			} else {
 				names = command.GetCommandNames()
 			}
