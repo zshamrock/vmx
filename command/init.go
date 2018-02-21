@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"sort"
+	"github.com/kevinburke/ssh_config"
+	"path/filepath"
 )
 
 const (
@@ -25,6 +27,8 @@ type Command struct {
 
 var commands map[string]Command
 var hostsGroups map[string][]string
+var commandNames []string
+var hostNames [] string
 
 func init() {
 	cfg := config.DefaultConfig
@@ -81,23 +85,53 @@ func readHostsGroups(config config.Config) map[string][]string {
 }
 
 func GetCommandNames() []string {
-	names := make([]string, 0, len(commands))
-	for _, command := range commands {
-		names = append(names, command.name)
+	if commandNames == nil {
+		commandNames = make([]string, 0, len(commands))
+		for _, command := range commands {
+			commandNames = append(commandNames, command.name)
+		}
+		sort.Strings(commandNames)
 	}
-	sort.Strings(names)
-	return names
+
+	return commandNames
 }
 
 func GetHostNames() []string {
-	names := make([]string, 0, len(hostsGroups))
-	for name := range hostsGroups {
-		if strings.HasSuffix(name, hostsGroupChildrenSuffix) {
-			names = append(names, strings.TrimSuffix(name, hostsGroupChildrenSuffix))
-		} else {
-			names = append(names, name)
+	if hostNames == nil {
+		names := make(map[string]int)
+		// Reading hosts from the ~/.vmx/hosts
+		for group := range hostsGroups {
+			var name string
+			if strings.HasSuffix(group, hostsGroupChildrenSuffix) {
+				name = strings.TrimSuffix(group, hostsGroupChildrenSuffix)
+			} else {
+				name = group
+			}
+			if names[name] == 0 {
+				names[name] = 1
+			}
 		}
+
+		// Reading hosts from ~/.ssh/config
+		f, _ := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+		cfg, _ := ssh_config.Decode(f)
+		for _, host := range cfg.Hosts {
+			for _, pattern := range host.Patterns {
+				v := pattern.String()
+				if strings.ContainsAny(v, "*?") {
+					continue
+				}
+				if names[v] == 0 {
+					names[v] = 1
+				}
+			}
+		}
+
+		hostNames = make([]string, 0, len(names))
+		for name := range names {
+			hostNames = append(hostNames, name)
+		}
+		sort.Strings(hostNames)
 	}
-	sort.Strings(names)
-	return names
+	return hostNames
 }
