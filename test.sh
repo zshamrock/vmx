@@ -52,6 +52,10 @@ testcase "all hosts group"
 ./vmx run all mem
 ok
 
+testcase "pass extra args to the custom command"
+./vmx run dev app-logs rest.log
+ok
+
 testcase "tail-ing/following"
 ./vmx run rest-prod1 less-logs
 ok

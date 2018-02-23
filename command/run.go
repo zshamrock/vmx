@@ -15,7 +15,7 @@ const (
 
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
-	command := getCommand(c)
+	command, extraArgs := getCommand(c)
 	hosts := getHosts(c)
 	var confirmation string
 	if command.requiresConfirmation {
@@ -28,7 +28,7 @@ func CmdRun(c *cli.Context) {
 	}
 	cmd := command.command
 	if command.workingDir != "" {
-		cmd = fmt.Sprintf("cd %s && %s", command.workingDir, cmd)
+		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s %s", command.workingDir, cmd, extraArgs))
 	}
 	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
 	ch := make(chan int, len(hosts))
@@ -40,9 +40,9 @@ func CmdRun(c *cli.Context) {
 	}
 }
 
-func getCommand(c *cli.Context) Command {
+func getCommand(c *cli.Context) (Command, string) {
 	args := c.Args()
-	commandName := args.Get(commandNameArgsIndex)
+	commandName := strings.TrimSpace(args.Get(commandNameArgsIndex))
 	command, ok := commands[commandName]
 	if !ok {
 		adhocCommand := strings.Join(c.Args().Tail(), " ")
@@ -50,12 +50,16 @@ func getCommand(c *cli.Context) Command {
 			c.App.Name, commandName, adhocCommand)
 		command = Command{"ad-hoc", adhocCommand, "", false}
 	}
-	return command
+	extraArgs := ""
+	if ok && c.NArg() > 2 {
+		extraArgs = strings.Join(c.Args().Tail()[1:], " ")
+	}
+	return command, extraArgs
 }
 
 func getHosts(c *cli.Context) []string {
 	args := c.Args()
-	hostsGroup := args.Get(hostsGroupArgsIndex)
+	hostsGroup := strings.TrimSpace(args.Get(hostsGroupArgsIndex))
 	return getHostsByGroup(c, hostsGroup)
 }
 
