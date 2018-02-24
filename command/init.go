@@ -13,6 +13,7 @@ import (
 const (
 	CommandsConfigFileName   = "commands"
 	HostsConfigFileName      = "hosts"
+	DefaultsConfigFileName   = "defaults"
 	SectionCommandKeyName    = "command"
 	SectionWorkingDirKeyName = "workingdir"
 
@@ -29,11 +30,13 @@ var commands map[string]Command
 var hostsGroups map[string][]string
 var commandNames []string
 var hostNames [] string
+var defaults map[string]map[string]string
 
 func init() {
 	cfg := config.DefaultConfig
 	commands = readCommands(cfg)
 	hostsGroups = readHostsGroups(cfg)
+	defaults = readDefaults(cfg)
 }
 
 func readCommands(config config.Config) map[string]Command {
@@ -82,6 +85,34 @@ func readHostsGroups(config config.Config) map[string][]string {
 		groups[name] = section.KeyStrings()
 	}
 	return groups
+}
+
+func readDefaults(config config.Config) map[string]map[string]string {
+	defaults := make(map[string]map[string]string)
+	cfg, err := ini.Load(config.Dir + "/" + DefaultsConfigFileName)
+	cfg.BlockMode = false
+	if err != nil {
+		os.Exit(1)
+	}
+	sections := cfg.Sections()
+	// There is always DEFAULT section, so exclude that one from the commands capacity
+	for _, section := range sections {
+		name := section.Name()
+		if name == defaultSectionName {
+			continue
+		}
+		workingDir := ""
+		if section.HasKey(SectionWorkingDirKeyName) {
+			workingDir = section.Key(SectionWorkingDirKeyName).String()
+		}
+		values, ok := defaults[name]
+		if !ok {
+			values = make(map[string]string)
+			defaults[name] = values
+		}
+		values[SectionWorkingDirKeyName] = workingDir
+	}
+	return defaults
 }
 
 func GetCommandNames() []string {

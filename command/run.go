@@ -33,6 +33,17 @@ func CmdRun(c *cli.Context) {
 	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
 	ch := make(chan int, len(hosts))
 	for _, host := range hosts {
+		if command.workingDir == "" && !strings.Contains(cmd, "cd ") {
+			// Try to extend the command with the working dir from the defaults config, unless the command already has
+			// have one, which takes the precedence. Also avoid to extend the command with the working dir from the
+			// defaults config, if the command has "cd " in it, assuming user configured the working dir explicitly.
+			defaults := getDefaults(host)
+			workingDir, ok := defaults[SectionWorkingDirKeyName]
+			if ok {
+				fmt.Printf("Using working dir %s from the defaults config\n", workingDir)
+				cmd = fmt.Sprintf("cd %s && %s", workingDir, cmd)
+			}
+		}
 		go SSH(host, cmd, ch)
 	}
 	for i := 0; i < len(hosts); i++ {
@@ -90,4 +101,15 @@ func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
 		}
 	}
 	return hosts
+}
+
+func getDefaults(host string) map[string]string {
+	values := defaults[host]
+	if values == nil {
+		values = defaults[allHostsGroup]
+	}
+	if values == nil {
+		return map[string]string{}
+	}
+	return values
 }

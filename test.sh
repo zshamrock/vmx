@@ -56,6 +56,14 @@ testcase "pass extra args to the custom command"
 ./vmx run dev app-logs rest.log
 ok
 
+testcase "using working dir from the defaults config"
+./vmx run dev tail -n 10 logs/rest.log
+ok
+
+testcase "do not use working dir from the defaults config if the one already provided explicitly by the user using cd"
+./vmx run dev "cd /etc/apt/sources.list.d && ls"
+ok
+
 testcase "tail-ing/following"
 ./vmx run rest-prod1 less-logs
 ok
