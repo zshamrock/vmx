@@ -20,13 +20,13 @@ const (
 )
 
 // SSH implements scp connection to the remote instance
-func SSH(host, command string, ch chan int) {
+func SSH(sshConfig *ssh_config.Config, host, command string, ch chan int) {
 	fmt.Printf("Running command: %s on host %s\n", command, host)
-	user := ssh_config.Get(host, SshConfigUserKey)
-	hostname := ssh_config.Get(host, SshConfigHostnameKey)
-	identityFile := ssh_config.Get(host, SshConfigIdentityFileKey)
+	user, _ := sshConfig.Get(host, SshConfigUserKey)
+	hostname, _ := sshConfig.Get(host, SshConfigHostnameKey)
+	identityFile, _ := sshConfig.Get(host, SshConfigIdentityFileKey)
 	var identityFilePath string
-	if len(identityFile) == 0 || identityFile == ignoredIdentitySshFile {
+	if identityFile == "" || identityFile == ignoredIdentitySshFile {
 		identityFilePath = filepath.Join(os.Getenv("HOME"), ".ssh", "id_rsa")
 	} else {
 		identityFilePath = os.ExpandEnv(strings.Replace(identityFile, "~", "${HOME}", -1))

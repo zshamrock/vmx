@@ -40,7 +40,7 @@ func init() {
 	defaults = readDefaults(cfg)
 }
 
-func readCommands(config config.Config) map[string]Command {
+func readCommands(config config.VMXConfig) map[string]Command {
 	commands := make(map[string]Command)
 	cfg, err := ini.Load(config.Dir + "/" + CommandsConfigFileName)
 	cfg.BlockMode = false
@@ -69,7 +69,7 @@ func readCommands(config config.Config) map[string]Command {
 	return commands
 }
 
-func readHostsGroups(config config.Config) map[string][]string {
+func readHostsGroups(config config.VMXConfig) map[string][]string {
 	groups := make(map[string][]string)
 	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/"+HostsConfigFileName)
 	cfg.BlockMode = false
@@ -88,7 +88,7 @@ func readHostsGroups(config config.Config) map[string][]string {
 	return groups
 }
 
-func readDefaults(config config.Config) map[string]map[string]string {
+func readDefaults(config config.VMXConfig) map[string]map[string]string {
 	defaults := make(map[string]map[string]string)
 	cfg, err := ini.Load(config.Dir + "/" + DefaultsConfigFileName)
 	cfg.BlockMode = false

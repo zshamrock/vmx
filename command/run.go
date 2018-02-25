@@ -1,9 +1,15 @@
 package command
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/kevinburke/ssh_config"
+	"github.com/zshamrock/vmx/config"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -32,6 +38,7 @@ func CmdRun(c *cli.Context) {
 		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s %s", command.workingDir, cmd, extraArgs))
 	}
 	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
+	sshConfig := readSSHConfig(config.DefaultConfig)
 	ch := make(chan int, len(hosts))
 	for _, host := range hosts {
 		if command.workingDir == "" && !strings.Contains(cmd, "cd ") {
@@ -45,13 +52,12 @@ func CmdRun(c *cli.Context) {
 				cmd = fmt.Sprintf("cd %s && %s", workingDir, cmd)
 			}
 		}
-		go SSH(host, cmd, ch)
+		go SSH(sshConfig, host, cmd, ch)
 	}
 	for i := 0; i < len(hosts); i++ {
 		<-ch
 	}
 }
-
 func getCommand(c *cli.Context) (Command, string) {
 	args := c.Args()
 	commandName := strings.TrimSpace(args.Get(commandNameArgsIndex))
@@ -113,4 +119,21 @@ func getDefaults(host string) map[string]string {
 		return map[string]string{}
 	}
 	return values
+}
+
+func readSSHConfig(cfg config.VMXConfig) *ssh_config.Config {
+	sshConfigFilePath := filepath.Join(cfg.SSHConfigDir, "config")
+	data, err := ioutil.ReadFile(sshConfigFilePath)
+	if err != nil {
+		fmt.Printf("Failed to read SSH config %s due to %v\n", sshConfigFilePath, err)
+		os.Exit(1)
+	}
+	var buffer bytes.Buffer
+	buffer.Write(data)
+	sshConfig, err := ssh_config.Decode(&buffer)
+	if err != nil {
+		fmt.Printf("Failed to parse SSH config %s due to %v\n", sshConfigFilePath, err)
+		os.Exit(1)
+	}
+	return sshConfig
 }

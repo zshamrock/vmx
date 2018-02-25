@@ -3,20 +3,27 @@ package config
 import "os"
 
 const (
-	vmxHomeEnvVar  = "VMXHOME"
-	defaultVmxHome = "${HOME}/.vmx"
+	vmxHomeEnvVar          = "VMX_HOME"
+	defaultVmxHome         = "${HOME}/.vmx"
+	vmxSSHConfigHomeEnvVar = "VMX_SSH_CONFIG_HOME"
+	defaultSSHConfigHome   = "${HOME}/.ssh"
 )
 
-type Config struct {
-	Dir string
+type VMXConfig struct {
+	Dir          string
+	SSHConfigDir string
 }
 
-var DefaultConfig Config
+var DefaultConfig VMXConfig
 
 func init() {
-	DefaultConfig = Config{os.ExpandEnv(defaultVmxHome)}
-	vmxhome, ok := os.LookupEnv(vmxHomeEnvVar)
+	DefaultConfig = VMXConfig{os.ExpandEnv(defaultVmxHome), os.ExpandEnv(defaultSSHConfigHome)}
+	vmxHome, ok := os.LookupEnv(vmxHomeEnvVar)
 	if ok {
-		DefaultConfig = Config{vmxhome}
+		DefaultConfig.Dir = vmxHome
+	}
+	vmxSSHHome, ok := os.LookupEnv(vmxSSHConfigHomeEnvVar)
+	if ok {
+		DefaultConfig.SSHConfigDir = vmxSSHHome
 	}
 }
