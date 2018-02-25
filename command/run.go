@@ -2,8 +2,9 @@ package command
 
 import (
 	"fmt"
-	"gopkg.in/urfave/cli.v1"
 	"strings"
+
+	"gopkg.in/urfave/cli.v1"
 )
 
 const (

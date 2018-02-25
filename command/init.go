@@ -1,13 +1,14 @@
 package command
 
 import (
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	"github.com/kevinburke/ssh_config"
 	"github.com/zshamrock/vmx/config"
 	"gopkg.in/ini.v1"
-	"os"
-	"strings"
-	"sort"
-	"github.com/kevinburke/ssh_config"
-	"path/filepath"
 )
 
 const (
@@ -29,7 +30,7 @@ type Command struct {
 var commands map[string]Command
 var hostsGroups map[string][]string
 var commandNames []string
-var hostNames [] string
+var hostNames []string
 var defaults map[string]map[string]string
 
 func init() {

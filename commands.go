@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/urfave/cli.v1"
 	"os"
+
 	"github.com/zshamrock/vmx/command"
+	"gopkg.in/urfave/cli.v1"
 )
 
 // GlobalFlags used

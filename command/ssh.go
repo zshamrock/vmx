@@ -2,14 +2,14 @@ package command
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-
-	"golang.org/x/crypto/ssh"
-	"github.com/kevinburke/ssh_config"
 	"path/filepath"
-	"io/ioutil"
 	"strings"
+
+	"github.com/kevinburke/ssh_config"
+	"golang.org/x/crypto/ssh"
 )
 
 const (

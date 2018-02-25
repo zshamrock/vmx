@@ -1,8 +1,9 @@
 package command
 
 import (
-	"gopkg.in/urfave/cli.v1"
 	"fmt"
+
+	"gopkg.in/urfave/cli.v1"
 )
 
 // CmdList lists available custom command
