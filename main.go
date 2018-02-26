@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/zshamrock/vmx/command"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	app.Flags = GlobalFlags
 	app.Commands = Commands
 	app.CommandNotFound = CommandNotFound
+	app.Before = command.CheckUpdate
 
 	app.Run(os.Args)
 }
