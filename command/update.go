@@ -4,15 +4,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/zshamrock/vmx/config"
 	"gopkg.in/urfave/cli.v1"
 )
 
-const versionURL = "https://raw.githubusercontent.com/zshamrock/vmx/master/version.txt"
+const (
+	versionURL       = "https://raw.githubusercontent.com/zshamrock/vmx/master/version.txt"
+	versionCheckFile = ".versioncheck"
+)
 
 func CheckUpdate(c *cli.Context) error {
+	versionCheckFilePath := filepath.Join(config.DefaultConfig.Dir, versionCheckFile)
+	content, err := ioutil.ReadFile(versionCheckFilePath)
+	if err == nil {
+		data := strings.Split(string(content), "\n")
+		checkedAt, _ := time.Parse(time.Stamp, data[0])
+		now := time.Now()
+		if checkedAt.Month() == now.Month() && checkedAt.Day() == now.Day() {
+			// Already checked today, then skip checking the latest version online
+			version := data[1]
+			if version != "" {
+				compareVersionsAndNotify(version, c.App.Version)
+			}
+			return nil
+		}
+	}
+	stampVersionCheckFile(versionCheckFilePath, "")
 	resp, err := http.Get(versionURL)
 	if err == nil {
 		defer resp.Body.Close()
@@ -26,12 +48,16 @@ func CheckUpdate(c *cli.Context) error {
 	}
 	version, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
 		// Same as above
 		return nil
 	}
 	latestVersion := string(version)
-	currentVersion := c.App.Version
+	compareVersionsAndNotify(latestVersion, c.App.Version)
+	stampVersionCheckFile(versionCheckFilePath, latestVersion)
+	return nil
+}
+
+func compareVersionsAndNotify(latestVersion, currentVersion string) {
 	stale := isStale(currentVersion, latestVersion)
 	if stale {
 		fmt.Printf("===\n")
@@ -39,7 +65,6 @@ func CheckUpdate(c *cli.Context) error {
 			currentVersion, latestVersion)
 		fmt.Printf("===\n\n")
 	}
-	return nil
 }
 
 func isStale(currentVersion, latestVersion string) bool {
@@ -55,6 +80,11 @@ func isStale(currentVersion, latestVersion string) bool {
 		return true
 	}
 	return false
+}
+
+func stampVersionCheckFile(versionCheckFilePath, version string) {
+	stamp := time.Now().Format(time.Stamp)
+	ioutil.WriteFile(versionCheckFilePath, []byte(stamp+"\n"+version), 0644)
 }
 
 func splitVersion(version string) (int, int, int) {
