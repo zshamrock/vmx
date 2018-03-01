@@ -22,6 +22,7 @@ const (
 
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
+	CheckUpdate(c)
 	command, extraArgs := getCommand(c)
 	hosts := getHosts(c)
 	var confirmation string
