@@ -80,6 +80,32 @@ which could be run as following:
 
 For the `rest-logs` run command it will change the working directory to the `/opt/apt` first before running the command.
 
+### Command with the confirmation
+
+If you put the `!` in the end of the command name, i.e. `[redeploy!]` then when running this command (by using the
+command name without the `!`), the app will ask the confirmation before running the command on the host, i.e.
+
+```
+# commands file
+...
+[redeploy!]
+command=./redeploy.sh
+...
+```
+
+and
+
+```
+vmx run host-name redeploy
+```
+
+and
+
+```
+vmx run dev redeploy
+Confirm to run "redeploy" command on [host-name] - yes/no or y/n:
+```
+
 ## Credits
 - [ssh_config](https://github.com/kevinburke/ssh_config)
 - [go-ini](https://github.com/go-ini/ini)
