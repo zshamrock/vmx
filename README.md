@@ -106,6 +106,41 @@ vmx run dev redeploy
 Confirm to run "redeploy" command on [host-name] - yes/no or y/n:
 ```
 
+### Pass extra arguments to the command
+
+Any extra arguments passed to the the `run` command will be then passed to the actual command to run. Here the example:
+
+```
+# commands file
+...
+[logs]
+workingdir=/opt/app/logs
+command=tail -n 10
+...
+```
+
+And when running:
+
+```
+vmx run host-name logs -f rest.log
+```
+
+it will be interpreted as `tail -n 10 -f rest.log` (i.e. all extra arguments are passed to the `command` defined in the
+`commands` file).
+
+### Running the ad-hoc command
+
+It is also possible to run the ad-hoc command, i.e. the command which is not defined in the `commands` file.
+
+Ex.:
+
+```
+vmx run host-name df -h
+```
+
+with no `df` command definition in the `commands` file, will be interpreted as the "ad-hoc" command, and will be
+executed on the host as it is, i.e. `df -h`.
+
 ## Credits
 - [ssh_config](https://github.com/kevinburke/ssh_config)
 - [go-ini](https://github.com/go-ini/ini)
