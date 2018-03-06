@@ -141,6 +141,66 @@ vmx run host-name df -h
 with no `df` command definition in the `commands` file, will be interpreted as the "ad-hoc" command, and will be
 executed on the host as it is, i.e. `df -h`.
 
+## Hosts
+
+Hosts configuration is based on the notion of host groups, exactly the same configuration concept as Ansible has.
+
+Hosts are defined in the `$VMX_HOME/hosts` (or otherwise in `~/.vmx/hosts`), and they are tightly coupled with the
+`$VMX_SSH_CONFIG_HOME/config` (or `~/.ssh/config` otherwise).
+
+Here the syntax for the `hosts` file:
+
+```
+[group-name]
+host1
+host2
+etc.
+
+[group-name:children]
+group-name1
+group-name2
+```
+
+There is also the special hosts group named `all`.
+
+The actual hostname, user, identity file, etc. are necessary for SSH to know are defined in the
+`$VMX_SSH_CONFIG_HOME/config` file.
+
+Example:
+
+```
+# ~/.ssh/config
+Host rest-prod1
+    User ubuntu
+    Hostname 1.2.3.4
+
+Host rest-prod2
+    User ubuntu
+    Hostname 5.6.7.8
+    IdentityFile ~/.ssh/rest_prod2_id_rsa
+```
+
+and the corresponding section of the `hosts` file:
+
+```
+# ~/.vmx/hosts
+[rest-prod]
+rest-prod1
+rest-prod2
+```
+
+And so the to execute the `run` command for both `rest-prod` instances:
+
+```
+vmx run rest-prod redeploy
+```
+
+### Ad-hoc host name
+
+If host name used in the `run` command is not defined in the `hosts` file it is then looked in the `~/.ssh/config`
+directly instead. So, if you don't have hosts to group you don't need then to configure `hosts` at all, and utilize yours
+`~/.ssh/config` instead.
+
 ## Credits
 - [ssh_config](https://github.com/kevinburke/ssh_config)
 - [go-ini](https://github.com/go-ini/ini)
