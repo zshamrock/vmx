@@ -215,6 +215,11 @@ workingdir=/opt/app
 workingdir=/opt/app/rest
 ```
 
+## Bash auto completion
+
+To enable Bash completion, copy `autocomplete/vmx` file into `/etc/bash_completion.d/` directory. Then either restart
+the current shell, or `source` that added auto completion file.
+
 ## Credits
 - [ssh_config](https://github.com/kevinburke/ssh_config)
 - [go-ini](https://github.com/go-ini/ini)
