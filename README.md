@@ -12,7 +12,7 @@ USAGE:
    vmx [global options] command [command options] [arguments...]
 
 VERSION:
-   0.0.0
+   1.0.0
 
 AUTHOR:
    Aliaksandr Kazlou
@@ -200,6 +200,20 @@ vmx run rest-prod redeploy
 If host name used in the `run` command is not defined in the `hosts` file it is then looked in the `~/.ssh/config`
 directly instead. So, if you don't have hosts to group you don't need then to configure `hosts` at all, and utilize yours
 `~/.ssh/config` instead.
+
+## Defaults
+
+You can configure default values per host groups in the `$VMX_HOME/defaults`, and also supports `all` hosts group.
+
+The only supported value in the `defaults` is `workingdir`, i.e.:
+
+```
+[all]
+workingdir=/opt/app
+
+[rest-prod]
+workingdir=/opt/app/rest
+```
 
 ## Credits
 - [ssh_config](https://github.com/kevinburke/ssh_config)

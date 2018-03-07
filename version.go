@@ -3,5 +3,5 @@ package main
 // Application name and version
 const (
 	Name    = "vmx"
-	Version = "0.0.0"
+	Version = "1.0.0"
 )
