@@ -97,7 +97,7 @@ which could be run as following:
 
 For the `rest-logs` run command it will change the working directory to the `/opt/apt` first before running the command.
 
-### Command with the confirmation
+#### Command with the confirmation
 
 If you put the `!` in the end of the command name, i.e. `[redeploy!]` then when running this command (by using the
 command name without the `!`), the app will ask the confirmation before running the command on the host, i.e.
@@ -123,7 +123,7 @@ vmx run dev redeploy
 Confirm to run "redeploy" command on [host-name] - yes/no or y/n:
 ```
 
-### Pass extra arguments to the command
+#### Pass extra arguments to the command
 
 Any extra arguments passed to the the `run` command will be then passed to the actual command to run. Here the example:
 
@@ -145,7 +145,7 @@ vmx run host-name logs -f rest.log
 it will be interpreted as `tail -n 10 -f rest.log` (i.e. all extra arguments are passed to the `command` defined in the
 `commands` file).
 
-### Running the ad-hoc command
+#### Running the ad-hoc command
 
 It is also possible to run the ad-hoc command, i.e. the command which is not defined in the `commands` file.
 
@@ -157,6 +157,26 @@ vmx run host-name df -h
 
 with no `df` command definition in the `commands` file, will be interpreted as the "ad-hoc" command, and will be
 executed on the host as it is, i.e. `df -h`.
+
+### `list` command
+
+`list` command simply prints all available `run` commands, i.e.:
+
+```
+$ vmx list
+
+app-logs
+check-version
+date (!)
+inbound-prod:mem
+less-logs
+logs
+mem
+redeploy (!)
+rest-logs
+stop (!)
+view-docker-compose
+```
 
 ## Hosts
 
