@@ -27,18 +27,22 @@ GLOBAL OPTIONS:
    --version, -v  print the version
 ```
 
+Table of Contents
+=================
+
 * [Config](#config)
 * [Commands](#commands)
-  + [`run` command](#-run--command)
-    - ["commands" file](#-commands--file)
-  + [Command with the confirmation](#command-with-the-confirmation)
-  + [Pass extra arguments to the command](#pass-extra-arguments-to-the-command)
-  + [Running the ad-hoc command](#running-the-ad-hoc-command)
+   * [run command](#run-command)
+      * ["commands" file](#commands-file)
+   * [Command with the confirmation](#command-with-the-confirmation)
+   * [Pass extra arguments to the command](#pass-extra-arguments-to-the-command)
+   * [Running the ad-hoc command](#running-the-ad-hoc-command)
 * [Hosts](#hosts)
-  + [Ad-hoc host name](#ad-hoc-host-name)
+   * [Ad-hoc host name](#ad-hoc-host-name)
 * [Defaults](#defaults)
 * [Bash auto completion](#bash-auto-completion)
 * [Credits](#credits)
+
 
 ## Config
 
