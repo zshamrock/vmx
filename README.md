@@ -168,8 +168,6 @@ $ vmx list
 
 app-logs
 check-version
-date (!)
-inbound-prod:mem
 less-logs
 logs
 mem
