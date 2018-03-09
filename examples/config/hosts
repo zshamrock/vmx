@@ -1,0 +1,12 @@
+# dev
+[dev]
+dev
+
+# prod
+[rest-prod]
+rest-prod1
+rest-prod2
+
+# :children suffix defines set of hosts groups which are part of the parent hosts group
+[prod-app:children]
+rest-prod

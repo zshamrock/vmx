@@ -1,0 +1,4 @@
+# "all" is the special hosts group
+[all]
+# currently the only supported option for the defaults config is workingdir
+workingdir=/opt/app

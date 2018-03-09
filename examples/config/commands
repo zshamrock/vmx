@@ -1,0 +1,21 @@
+[logs]
+workingdir=/opt/app
+command=docker-compose logs -f
+
+[rest-logs]
+command=tail -f -n 10 logs/rest.log
+
+[mem]
+command=df -h
+
+[app-logs]
+workingdir=/opt/app/logs
+# here the command is the "template", i.e. extra command arguments will be passed when running the command, i.e.
+# vmx run dev app-logs -f rest.log
+# so "-f rest.log" will be appended to the "tail" command
+command=tail -n 10
+
+# command with the exclamation mark (!) in the end will require user confirmation before running it
+[redeploy!]
+workingdir=/opt/app
+command=./redeploy.sh
