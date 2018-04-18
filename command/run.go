@@ -99,7 +99,12 @@ func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
 		if ok {
 			children := make([]string, 0, len(hosts))
 			for _, group := range hosts {
-				children = append(children, hostsGroups[group]...)
+				_, ok = hostsGroups[group+hostsGroupChildrenSuffix]
+				if ok {
+					children = append(children, getHostsByGroup(c, group)...)
+				} else {
+					children = append(children, hostsGroups[group]...)
+				}
 			}
 			hosts = children
 		} else {
