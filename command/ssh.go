@@ -48,12 +48,14 @@ func SSH(sshConfig *ssh_config.Config, host, command string, ch chan int) {
 		log.Panicln("Failed to create session:", err.Error())
 	}
 	defer session.Close()
-	session.Stdout = os.Stdout
+	var output strings.Builder
+	session.Stdout = &output
 	session.Stderr = os.Stderr
 	session.Stdin = os.Stdin
 	if err := session.Run(command); err != nil {
 		log.Panicln("Failed to run:", err.Error())
 	}
-	fmt.Printf("Command completed on the host %s\n", host)
+	fmt.Fprintf(&output, "Command completed on the host %s\n", host)
+	fmt.Println(output.String())
 	ch <- 0
 }

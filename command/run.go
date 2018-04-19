@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/kevinburke/ssh_config"
@@ -79,7 +80,9 @@ func getCommand(c *cli.Context) (Command, string) {
 func getHosts(c *cli.Context) []string {
 	args := c.Args()
 	hostsGroup := strings.TrimSpace(args.Get(hostsGroupArgsIndex))
-	return getHostsByGroup(c, hostsGroup)
+	hosts := getHostsByGroup(c, hostsGroup)
+	sort.Strings(hosts)
+	return hosts
 }
 
 func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
