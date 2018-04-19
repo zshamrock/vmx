@@ -19,6 +19,8 @@ const (
 	ignoredIdentitySshFile   = "~/.ssh/identity"
 )
 
+// TODO: define the ch as the chan CommandOutput (where CommandOutput is the struct: command, host, builder,
+// and then sort on the processing side by the host
 // SSH implements scp connection to the remote instance
 func SSH(sshConfig *ssh_config.Config, host, command string, ch chan int) {
 	fmt.Printf("Running command: %s on host %s\n", command, host)
