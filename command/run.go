@@ -41,7 +41,7 @@ func CmdRun(c *cli.Context) {
 	}
 	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
 	sshConfig := readSSHConfig(config.DefaultConfig)
-	ch := make(chan int, len(hosts))
+	ch := make(chan ExecOutput, len(hosts))
 	for _, host := range hosts {
 		if command.workingDir == "" && !strings.Contains(cmd, "cd ") {
 			// Try to extend the command with the working dir from the defaults config, unless the command already has
@@ -56,8 +56,15 @@ func CmdRun(c *cli.Context) {
 		}
 		go SSH(sshConfig, host, cmd, ch)
 	}
+	outputs := make([]ExecOutput, 0, len(hosts))
 	for i := 0; i < len(hosts); i++ {
-		<-ch
+		outputs = append(outputs, <-ch)
+	}
+	sort.Slice(outputs, func(i, j int) bool {
+		return outputs[i].host < outputs[j].host
+	})
+	for _, output := range outputs {
+		fmt.Println(output.output)
 	}
 }
 func getCommand(c *cli.Context) (Command, string) {

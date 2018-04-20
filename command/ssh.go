@@ -19,10 +19,8 @@ const (
 	ignoredIdentitySshFile   = "~/.ssh/identity"
 )
 
-// TODO: define the ch as the chan CommandOutput (where CommandOutput is the struct: command, host, builder,
-// and then sort on the processing side by the host
 // SSH implements scp connection to the remote instance
-func SSH(sshConfig *ssh_config.Config, host, command string, ch chan int) {
+func SSH(sshConfig *ssh_config.Config, host, command string, ch chan ExecOutput) {
 	fmt.Printf("Running command: %s on host %s\n", command, host)
 	user, _ := sshConfig.Get(host, SshConfigUserKey)
 	hostname, _ := sshConfig.Get(host, SshConfigHostnameKey)
@@ -58,6 +56,9 @@ func SSH(sshConfig *ssh_config.Config, host, command string, ch chan int) {
 		log.Panicln("Failed to run:", err.Error())
 	}
 	fmt.Fprintf(&output, "Command completed on the host %s\n", host)
-	fmt.Println(output.String())
-	ch <- 0
+	ch <- ExecOutput{
+		command,
+		host,
+		output.String(),
+	}
 }

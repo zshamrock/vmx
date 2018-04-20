@@ -27,6 +27,11 @@ type Command struct {
 	requiresConfirmation      bool
 }
 
+type ExecOutput struct {
+	name, host string
+	output     string
+}
+
 var commands map[string]Command
 var hostsGroups map[string][]string
 var commandNames []string
