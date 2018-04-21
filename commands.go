@@ -9,7 +9,12 @@ import (
 )
 
 // GlobalFlags used
-var GlobalFlags = []cli.Flag{}
+var GlobalFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "profile, p",
+		Usage: "profile to use to read hosts and commands for",
+	},
+}
 
 // Commands available
 var Commands = []cli.Command{

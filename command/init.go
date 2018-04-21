@@ -38,7 +38,7 @@ var commandNames []string
 var hostNames []string
 var defaults map[string]map[string]string
 
-func init() {
+func Init(profile string) {
 	cfg := config.DefaultConfig
 	commands = readCommands(cfg)
 	hostsGroups = readHostsGroups(cfg)
