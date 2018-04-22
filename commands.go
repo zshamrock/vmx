@@ -8,12 +8,22 @@ import (
 	"gopkg.in/urfave/cli.v1"
 )
 
+const profileArgName = "profile"
+
 // GlobalFlags used
 var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
-		Name:  "profile, p",
+		Name:  fmt.Sprintf("%s, p", profileArgName),
 		Usage: "profile to use to read hosts and commands for",
 	},
+}
+
+func getProfile(c *cli.Context) string {
+	profile := c.String(profileArgName)
+	if profile == "" {
+		profile = os.Getenv("VMX_DEFAULT_PROFILE")
+	}
+	return profile
 }
 
 // Commands available

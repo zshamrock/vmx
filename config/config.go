@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 const (
 	vmxHomeEnvVar          = "VMX_HOME"
@@ -12,6 +15,13 @@ const (
 type VMXConfig struct {
 	Dir          string
 	SSHConfigDir string
+}
+
+func (c VMXConfig) GetDir(profile string) string {
+	if profile == "" {
+		return c.Dir
+	}
+	return filepath.Join(c.Dir, profile)
 }
 
 var DefaultConfig VMXConfig

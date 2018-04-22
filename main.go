@@ -20,10 +20,7 @@ func main() {
 	app.Commands = Commands
 	app.CommandNotFound = CommandNotFound
 	app.Before = func(c *cli.Context) error {
-		profile := c.String("profile")
-		if profile == "" {
-			profile = "default"
-		}
+		profile := getProfile(c)
 		command.Init(profile)
 		return nil
 	}

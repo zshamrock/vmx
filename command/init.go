@@ -40,14 +40,14 @@ var defaults map[string]map[string]string
 
 func Init(profile string) {
 	cfg := config.DefaultConfig
-	commands = readCommands(cfg)
-	hostsGroups = readHostsGroups(cfg)
-	defaults = readDefaults(cfg)
+	commands = readCommands(cfg, profile)
+	hostsGroups = readHostsGroups(cfg, profile)
+	defaults = readDefaults(cfg, profile)
 }
 
-func readCommands(config config.VMXConfig) map[string]Command {
+func readCommands(config config.VMXConfig, profile string) map[string]Command {
 	commands := make(map[string]Command)
-	cfg, err := ini.Load(config.Dir + "/" + CommandsConfigFileName)
+	cfg, err := ini.Load(filepath.Join(config.GetDir(profile), CommandsConfigFileName))
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
@@ -74,9 +74,11 @@ func readCommands(config config.VMXConfig) map[string]Command {
 	return commands
 }
 
-func readHostsGroups(config config.VMXConfig) map[string][]string {
+func readHostsGroups(config config.VMXConfig, profile string) map[string][]string {
 	groups := make(map[string][]string)
-	cfg, err := ini.LoadSources(ini.LoadOptions{AllowBooleanKeys: true}, config.Dir+"/"+HostsConfigFileName)
+	cfg, err := ini.LoadSources(
+		ini.LoadOptions{AllowBooleanKeys: true},
+		filepath.Join(config.GetDir(profile), HostsConfigFileName))
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
@@ -93,9 +95,9 @@ func readHostsGroups(config config.VMXConfig) map[string][]string {
 	return groups
 }
 
-func readDefaults(config config.VMXConfig) map[string]map[string]string {
+func readDefaults(config config.VMXConfig, profile string) map[string]map[string]string {
 	defaults := make(map[string]map[string]string)
-	cfg, err := ini.Load(config.Dir + "/" + DefaultsConfigFileName)
+	cfg, err := ini.Load(filepath.Join(config.GetDir(profile), DefaultsConfigFileName))
 	cfg.BlockMode = false
 	if err != nil {
 		os.Exit(1)
