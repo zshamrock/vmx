@@ -48,6 +48,18 @@ testcase "list command"
 ./vmx list
 ok
 
+testcase "list command over test profile full name argument"
+./vmx --profile test list
+ok
+
+testcase "list command over test profile short name argument"
+./vmx --profile test list
+ok
+
+testcase "list command over test profile VMX_DEFAULT_PROFILE env"
+VMX_DEFAULT_PROFILE=test && ./vmx --profile test list
+ok
+
 testcase "all hosts group"
 ./vmx run all mem
 ok
