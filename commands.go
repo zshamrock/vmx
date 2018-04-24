@@ -14,7 +14,7 @@ const profileArgName = "profile"
 var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:  fmt.Sprintf("%s, p", profileArgName),
-		Usage: "profile to use to read hosts and commands for",
+		Usage: "profile to use to read hosts and commands from",
 	},
 }
 

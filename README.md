@@ -31,6 +31,7 @@ Table of Contents
 =================
 
 * [Config](#config)
+* [Profiles] (#profiles)
 * [Commands](#commands)
    * [run command](#run-command)
       * ["commands" file](#commands-file)
@@ -49,6 +50,17 @@ Table of Contents
 
 All the control files `commands`, `defaults`, `hosts`, etc. are looking for in the `$VMX_HOME` directory if defined,
 otherwise in directory `$HOME/.vmx` (so for unix like systems it would be enough to put them in the `~/.vmx`).
+
+## Profiles
+
+`vmx` supports profiles, similar to the `aws` CLI from Amazon. So you can pass either `-p` or `--profile`
+to specify which profile to use. If not specified, it will also check for the value of the env var
+`$VMX_DEFAULT_PROFILE`.
+
+If any of those set that profile will be used, otherwise the "default" one.
+
+What profile really means, is that the configuration files will be read from `$VMX_HOME/<profile>`, instead of
+`$VMX_HOME`.
 
 ## Commands
 
