@@ -23,8 +23,9 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version
+   --profile value, -p value  profile to use to read hosts and commands from
+   --help, -h                 show help
+   --version, -v              print the version
 ```
 
 Table of Contents
