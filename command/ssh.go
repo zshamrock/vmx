@@ -41,11 +41,11 @@ func SSH(sshConfig *ssh_config.Config, host, command string, ch chan ExecOutput)
 	}
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:22", hostname), config)
 	if err != nil {
-		log.Panicln("Failed to dial:", err.Error())
+		log.Panicf("Failed to dial to the host %s: %v\n", host, err.Error())
 	}
 	session, err := client.NewSession()
 	if err != nil {
-		log.Panicln("Failed to create session:", err.Error())
+		log.Panicf("Failed to create session for the host %s: %v\n", host, err.Error())
 	}
 	defer session.Close()
 	var output strings.Builder
@@ -53,7 +53,7 @@ func SSH(sshConfig *ssh_config.Config, host, command string, ch chan ExecOutput)
 	session.Stderr = os.Stderr
 	session.Stdin = os.Stdin
 	if err := session.Run(command); err != nil {
-		log.Panicln("Failed to run:", err.Error())
+		log.Panicf("Failed to run command \"%s\" on the host %s: %v\n", command, host, err.Error())
 	}
 	fmt.Fprintf(&output, "Command completed on the host %s\n", host)
 	ch <- ExecOutput{
