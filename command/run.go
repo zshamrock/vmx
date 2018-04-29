@@ -11,17 +11,21 @@ import (
 
 	"github.com/kevinburke/ssh_config"
 	"github.com/zshamrock/vmx/config"
+	"github.com/zshamrock/vmx/core"
 	"gopkg.in/urfave/cli.v1"
 )
 
 const (
-	optionalFollowArgsIndex  = 0
-	hostsGroupArgsIndex      = 0
-	commandNameArgsIndex     = 1
-	hostsGroupChildrenSuffix = ":children"
-	allHostsGroup            = "all"
-	FollowArgName            = "follow"
+	optionalFollowArgsIndex = 0
+	hostsGroupArgsIndex     = 0
+	commandNameArgsIndex    = 1
+	FollowArgName           = "follow"
 )
+
+type execOutput struct {
+	name, host string
+	output     string
+}
 
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
@@ -30,36 +34,36 @@ func CmdRun(c *cli.Context) {
 	command, extraArgs := getCommand(c, follow)
 	hosts := getHosts(c, follow)
 	var confirmation string
-	if command.requiresConfirmation {
-		fmt.Printf("Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, hosts)
+	if command.RequiresConfirmation {
+		fmt.Printf("Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.Name, hosts)
 		fmt.Scanln(&confirmation)
 	}
 	confirmation = strings.ToLower(confirmation)
-	if command.requiresConfirmation && confirmation != "yes" && confirmation != "y" {
+	if command.RequiresConfirmation && confirmation != "yes" && confirmation != "y" {
 		return
 	}
-	cmd := command.command
-	if command.workingDir != "" {
-		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s %s", command.workingDir, cmd, extraArgs))
+	cmd := command.Command
+	if command.WorkingDir != "" {
+		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s %s", command.WorkingDir, cmd, extraArgs))
 	}
-	fmt.Printf("Running command: %s from %s on %v\n", command.command, command.workingDir, hosts)
+	fmt.Printf("Running command: %s from %s on %v\n", command.Command, command.WorkingDir, hosts)
 	sshConfig := readSSHConfig(config.DefaultConfig)
-	ch := make(chan ExecOutput, len(hosts))
+	ch := make(chan execOutput, len(hosts))
 	for _, host := range hosts {
-		if command.workingDir == "" && !strings.Contains(cmd, "cd ") {
+		if command.WorkingDir == "" && !strings.Contains(cmd, "cd ") {
 			// Try to extend the command with the working dir from the defaults config, unless the command already has
 			// have one, which takes the precedence. Also avoid to extend the command with the working dir from the
 			// defaults config, if the command has "cd " in it, assuming user configured the working dir explicitly.
-			defaults := getDefaults(host)
-			workingDir, ok := defaults[SectionWorkingDirKeyName]
+			defaults := config.GetDefaults(host)
+			workingDir, ok := defaults[config.SectionWorkingDirKeyName]
 			if ok {
 				fmt.Printf("Using working dir %s from the defaults config\n", workingDir)
 				cmd = fmt.Sprintf("cd %s && %s", workingDir, cmd)
 			}
 		}
-		go SSH(sshConfig, host, cmd, follow, ch)
+		go ssh(sshConfig, host, cmd, follow, ch)
 	}
-	outputs := make([]ExecOutput, 0, len(hosts))
+	outputs := make([]execOutput, 0, len(hosts))
 	for i := 0; i < len(hosts); i++ {
 		outputs = append(outputs, <-ch)
 	}
@@ -70,16 +74,21 @@ func CmdRun(c *cli.Context) {
 		fmt.Println(output.output)
 	}
 }
-func getCommand(c *cli.Context, follow bool) (Command, string) {
+func getCommand(c *cli.Context, follow bool) (core.Command, string) {
 	args := c.Args()
 	actualCommandNameArgsIndex := getActualArgsIndex(commandNameArgsIndex, follow)
 	commandName := strings.TrimSpace(args.Get(actualCommandNameArgsIndex))
-	command, ok := commands[commandName]
+	command, ok := config.GetCommands()[commandName]
 	if !ok {
 		adhocCommand := strings.Join(args[actualCommandNameArgsIndex:], " ")
 		fmt.Printf("%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
 			c.App.Name, commandName, adhocCommand)
-		command = Command{adHocCommandName, adhocCommand, "", false}
+		command = core.Command{
+			Name:                 core.AdHocCommandName,
+			Command:              adhocCommand,
+			WorkingDir:           "",
+			RequiresConfirmation: false,
+		}
 	}
 	extraArgs := ""
 	if ok && c.NArg() > 2 {
@@ -113,7 +122,8 @@ func getHosts(c *cli.Context, follow bool) []string {
 }
 
 func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
-	if hostsGroup == allHostsGroup {
+	hostsGroups := config.GetHostsGroups()
+	if hostsGroup == config.AllHostsGroup {
 		allHosts := make([]string, 0, len(hostsGroups))
 		for _, hosts := range hostsGroups {
 			for _, host := range hosts {
@@ -125,11 +135,11 @@ func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
 	hosts, ok := hostsGroups[hostsGroup]
 	if !ok {
 		// First then try whether host:children exists
-		hosts, ok = hostsGroups[hostsGroup+hostsGroupChildrenSuffix]
+		hosts, ok = hostsGroups[hostsGroup+config.HostsGroupChildrenSuffix]
 		if ok {
 			children := make([]string, 0, len(hosts))
 			for _, group := range hosts {
-				_, ok = hostsGroups[group+hostsGroupChildrenSuffix]
+				_, ok = hostsGroups[group+config.HostsGroupChildrenSuffix]
 				if ok {
 					children = append(children, getHostsByGroup(c, group)...)
 				} else {
@@ -144,17 +154,6 @@ func getHostsByGroup(c *cli.Context, hostsGroup string) []string {
 		}
 	}
 	return hosts
-}
-
-func getDefaults(host string) map[string]string {
-	values := defaults[host]
-	if values == nil {
-		values = defaults[allHostsGroup]
-	}
-	if values == nil {
-		return map[string]string{}
-	}
-	return values
 }
 
 func readSSHConfig(cfg config.VMXConfig) *ssh_config.Config {

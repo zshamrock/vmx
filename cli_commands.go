@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/zshamrock/vmx/command"
+	"github.com/zshamrock/vmx/config"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -44,9 +45,9 @@ var Commands = []cli.Command{
 		BashComplete: func(c *cli.Context) {
 			var names []string
 			if c.NArg() == 0 || (c.NArg() == 1 && command.ContainsFollow(c)) {
-				names = command.GetHostNames()
+				names = config.GetHostNames()
 			} else {
-				names = command.GetCommandNames()
+				names = config.GetCommandNames()
 			}
 			for _, name := range names {
 				fmt.Println(name)

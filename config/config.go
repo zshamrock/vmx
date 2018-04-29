@@ -10,6 +10,10 @@ const (
 	defaultVmxHome         = "${HOME}/.vmx"
 	vmxSSHConfigHomeEnvVar = "VMX_SSH_CONFIG_HOME"
 	defaultSSHConfigHome   = "${HOME}/.ssh"
+
+	CommandNameConfirmationSuffix = "!"
+	HostsGroupChildrenSuffix      = ":children"
+	AllHostsGroup                 = "all"
 )
 
 type VMXConfig struct {

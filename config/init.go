@@ -1,4 +1,4 @@
-package command
+package config
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/kevinburke/ssh_config"
-	"github.com/zshamrock/vmx/config"
+	"github.com/zshamrock/vmx/core"
 	"gopkg.in/ini.v1"
 )
 
@@ -18,40 +18,24 @@ const (
 	SectionCommandKeyName    = "command"
 	SectionWorkingDirKeyName = "workingdir"
 
-	defaultSectionName            = "DEFAULT"
-	commandNameConfirmationSuffix = "!"
-	adHocCommandName              = "ad-hoc"
+	defaultSectionName = "DEFAULT"
 )
 
-type Command struct {
-	name, command, workingDir string
-	requiresConfirmation      bool
-}
-
-type ExecOutput struct {
-	name, host string
-	output     string
-}
-
-var commands map[string]Command
+var commands map[string]core.Command
 var hostsGroups map[string][]string
 var commandNames []string
 var hostNames []string
 var defaults map[string]map[string]string
 
-func (c Command) IsAdHoc() bool {
-	return c.name == adHocCommandName
-}
-
 func Init(profile string) {
-	cfg := config.DefaultConfig
+	cfg := DefaultConfig
 	commands = readCommands(cfg, profile)
 	hostsGroups = readHostsGroups(cfg, profile)
 	defaults = readDefaults(cfg, profile)
 }
 
-func readCommands(config config.VMXConfig, profile string) map[string]Command {
-	commands := make(map[string]Command)
+func readCommands(config VMXConfig, profile string) map[string]core.Command {
+	commands := make(map[string]core.Command)
 	cfg, err := ini.Load(filepath.Join(config.GetDir(profile), CommandsConfigFileName))
 	cfg.BlockMode = false
 	if err != nil {
@@ -64,22 +48,23 @@ func readCommands(config config.VMXConfig, profile string) map[string]Command {
 		if name == defaultSectionName {
 			continue
 		}
-		requiresConfirmation := strings.HasSuffix(name, commandNameConfirmationSuffix)
-		name = strings.TrimSuffix(name, commandNameConfirmationSuffix)
+		requiresConfirmation := strings.HasSuffix(name, CommandNameConfirmationSuffix)
+		name = strings.TrimSuffix(name, CommandNameConfirmationSuffix)
 		workingDir := ""
 		if section.HasKey(SectionWorkingDirKeyName) {
 			workingDir = section.Key(SectionWorkingDirKeyName).String()
 		}
-		commands[name] = Command{
-			name,
-			section.Key(SectionCommandKeyName).String(),
-			workingDir,
-			requiresConfirmation}
+		commands[name] = core.Command{
+			Name:                 name,
+			Command:              section.Key(SectionCommandKeyName).String(),
+			WorkingDir:           workingDir,
+			RequiresConfirmation: requiresConfirmation,
+		}
 	}
 	return commands
 }
 
-func readHostsGroups(config config.VMXConfig, profile string) map[string][]string {
+func readHostsGroups(config VMXConfig, profile string) map[string][]string {
 	groups := make(map[string][]string)
 	cfg, err := ini.LoadSources(
 		ini.LoadOptions{AllowBooleanKeys: true},
@@ -100,7 +85,7 @@ func readHostsGroups(config config.VMXConfig, profile string) map[string][]strin
 	return groups
 }
 
-func readDefaults(config config.VMXConfig, profile string) map[string]map[string]string {
+func readDefaults(config VMXConfig, profile string) map[string]map[string]string {
 	defaults := make(map[string]map[string]string)
 	cfg, err := ini.Load(filepath.Join(config.GetDir(profile), DefaultsConfigFileName))
 	cfg.BlockMode = false
@@ -132,12 +117,16 @@ func GetCommandNames() []string {
 	if commandNames == nil {
 		commandNames = make([]string, 0, len(commands))
 		for _, command := range commands {
-			commandNames = append(commandNames, command.name)
+			commandNames = append(commandNames, command.Name)
 		}
 		sort.Strings(commandNames)
 	}
 
 	return commandNames
+}
+
+func GetCommands() map[string]core.Command {
+	return commands
 }
 
 func GetHostNames() []string {
@@ -146,8 +135,8 @@ func GetHostNames() []string {
 		// Reading hosts from the ~/.vmx/hosts
 		for group := range hostsGroups {
 			var name string
-			if strings.HasSuffix(group, hostsGroupChildrenSuffix) {
-				name = strings.TrimSuffix(group, hostsGroupChildrenSuffix)
+			if strings.HasSuffix(group, HostsGroupChildrenSuffix) {
+				name = strings.TrimSuffix(group, HostsGroupChildrenSuffix)
 			} else {
 				name = group
 			}
@@ -178,4 +167,19 @@ func GetHostNames() []string {
 		sort.Strings(hostNames)
 	}
 	return hostNames
+}
+
+func GetHostsGroups() map[string][]string {
+	return hostsGroups
+}
+
+func GetDefaults(host string) map[string]string {
+	values := defaults[host]
+	if values == nil {
+		values = defaults[AllHostsGroup]
+	}
+	if values == nil {
+		return map[string]string{}
+	}
+	return values
 }

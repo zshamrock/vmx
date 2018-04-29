@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/kevinburke/ssh_config"
-	"golang.org/x/crypto/ssh"
+	cryptoSSH "golang.org/x/crypto/ssh"
 )
 
 const (
@@ -19,8 +19,8 @@ const (
 	ignoredIdentitySshFile   = "~/.ssh/identity"
 )
 
-// SSH implements scp connection to the remote instance
-func SSH(sshConfig *ssh_config.Config, host, command string, follow bool, ch chan ExecOutput) {
+// ssh implements scp connection to the remote instance
+func ssh(sshConfig *ssh_config.Config, host, command string, follow bool, ch chan execOutput) {
 	fmt.Printf("Running command: %s on host %s\n", command, host)
 	user, _ := sshConfig.Get(host, SshConfigUserKey)
 	hostname, _ := sshConfig.Get(host, SshConfigHostnameKey)
@@ -32,14 +32,14 @@ func SSH(sshConfig *ssh_config.Config, host, command string, follow bool, ch cha
 		identityFilePath = os.ExpandEnv(strings.Replace(identityFile, "~", "${HOME}", -1))
 	}
 	pk, _ := ioutil.ReadFile(identityFilePath)
-	signer, _ := ssh.ParsePrivateKey([]byte(pk))
-	config := &ssh.ClientConfig{
+	signer, _ := cryptoSSH.ParsePrivateKey([]byte(pk))
+	config := &cryptoSSH.ClientConfig{
 		User: user,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
+		Auth: []cryptoSSH.AuthMethod{
+			cryptoSSH.PublicKeys(signer),
 		},
 	}
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:22", hostname), config)
+	client, err := cryptoSSH.Dial("tcp", fmt.Sprintf("%s:22", hostname), config)
 	if err != nil {
 		log.Panicf("Failed to dial to the host %s: %v\n", host, err.Error())
 	}
@@ -60,7 +60,7 @@ func SSH(sshConfig *ssh_config.Config, host, command string, follow bool, ch cha
 		log.Panicf("Failed to run command \"%s\" on the host %s: %v\n", command, host, err.Error())
 	}
 	fmt.Fprintf(&output, "Command completed on the host %s\n", host)
-	ch <- ExecOutput{
+	ch <- execOutput{
 		command,
 		host,
 		output.String(),

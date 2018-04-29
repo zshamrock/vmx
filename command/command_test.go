@@ -18,10 +18,10 @@ func TestGetCommand(t *testing.T) {
 		context := cli.NewContext(app, &flags, nil)
 		command, extraArgs := getCommand(context, true)
 		if !command.IsAdHoc() {
-			t.Errorf("Command name should be ad-hoc, but got %s", command.name)
+			t.Errorf("Command name should be ad-hoc, but got %s", command.Name)
 		}
-		if command.command != commandText {
-			t.Errorf("Command should be %s, but got %s", commandText, command.command)
+		if command.Command != commandText {
+			t.Errorf("Command should be %s, but got %s", commandText, command.Command)
 		}
 		if extraArgs != "" {
 			t.Errorf("Extra args should be empty, but got %s", extraArgs)

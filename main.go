@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/zshamrock/vmx/command"
+	"github.com/zshamrock/vmx/config"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -21,7 +21,7 @@ func main() {
 	app.CommandNotFound = CommandNotFound
 	app.Before = func(c *cli.Context) error {
 		profile := getProfile(c)
-		command.Init(profile)
+		config.Init(profile)
 		return nil
 	}
 	app.Run(os.Args)
