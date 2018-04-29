@@ -77,5 +77,5 @@ testcase "do not use working dir from the defaults config if the one already pro
 ok
 
 testcase "tail-ing/following"
-./vmx run rest-prod1 less-logs
+./vmx run --follow rest-prod1 less-logs
 ok
