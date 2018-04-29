@@ -15,17 +15,20 @@ import (
 )
 
 const (
+	optionalFollowArgsIndex  = 0
 	hostsGroupArgsIndex      = 0
 	commandNameArgsIndex     = 1
 	hostsGroupChildrenSuffix = ":children"
 	allHostsGroup            = "all"
+	FollowArgName            = "follow"
 )
 
 // CmdRun runs custom command
 func CmdRun(c *cli.Context) {
 	CheckUpdate(c)
-	command, extraArgs := getCommand(c)
-	hosts := getHosts(c)
+	follow := ContainsFollow(c)
+	command, extraArgs := getCommand(c, follow)
+	hosts := getHosts(c, follow)
 	var confirmation string
 	if command.requiresConfirmation {
 		fmt.Printf("Confirm to run \"%s\" command on %v - yes/no or y/n: ", command.name, hosts)
@@ -54,7 +57,7 @@ func CmdRun(c *cli.Context) {
 				cmd = fmt.Sprintf("cd %s && %s", workingDir, cmd)
 			}
 		}
-		go SSH(sshConfig, host, cmd, ch)
+		go SSH(sshConfig, host, cmd, follow, ch)
 	}
 	outputs := make([]ExecOutput, 0, len(hosts))
 	for i := 0; i < len(hosts); i++ {
@@ -67,26 +70,43 @@ func CmdRun(c *cli.Context) {
 		fmt.Println(output.output)
 	}
 }
-func getCommand(c *cli.Context) (Command, string) {
+func getCommand(c *cli.Context, follow bool) (Command, string) {
 	args := c.Args()
-	commandName := strings.TrimSpace(args.Get(commandNameArgsIndex))
+	actualCommandNameArgsIndex := getActualArgsIndex(commandNameArgsIndex, follow)
+	commandName := strings.TrimSpace(args.Get(actualCommandNameArgsIndex))
 	command, ok := commands[commandName]
 	if !ok {
-		adhocCommand := strings.Join(c.Args().Tail(), " ")
+		adhocCommand := strings.Join(args[actualCommandNameArgsIndex:], " ")
 		fmt.Printf("%s: custom command \"%s\" is not defined, interpret it as the ad-hoc command: %s\n",
 			c.App.Name, commandName, adhocCommand)
-		command = Command{"ad-hoc", adhocCommand, "", false}
+		command = Command{adHocCommandName, adhocCommand, "", false}
 	}
 	extraArgs := ""
 	if ok && c.NArg() > 2 {
-		extraArgs = strings.Join(c.Args().Tail()[1:], " ")
+		extraArgsIndex := 1
+		if follow {
+			extraArgsIndex = 2
+		}
+		extraArgs = strings.Join(args.Tail()[extraArgsIndex:], " ")
 	}
 	return command, extraArgs
 }
+func getActualArgsIndex(argsIndex int, follow bool) int {
+	actualArgsIndex := argsIndex
+	if follow {
+		actualArgsIndex = argsIndex + 1
+	}
+	return actualArgsIndex
+}
+func ContainsFollow(c *cli.Context) bool {
+	follow := c.Args().Get(optionalFollowArgsIndex)
+	return follow == "-f" || follow == fmt.Sprintf("--%s", FollowArgName)
+}
 
-func getHosts(c *cli.Context) []string {
+func getHosts(c *cli.Context, follow bool) []string {
 	args := c.Args()
-	hostsGroup := strings.TrimSpace(args.Get(hostsGroupArgsIndex))
+	actualHostsGroupArgsIndex := getActualArgsIndex(hostsGroupArgsIndex, follow)
+	hostsGroup := strings.TrimSpace(args.Get(actualHostsGroupArgsIndex))
 	hosts := getHostsByGroup(c, hostsGroup)
 	sort.Strings(hosts)
 	return hosts

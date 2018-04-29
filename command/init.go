@@ -20,6 +20,7 @@ const (
 
 	defaultSectionName            = "DEFAULT"
 	commandNameConfirmationSuffix = "!"
+	adHocCommandName              = "ad-hoc"
 )
 
 type Command struct {
@@ -37,6 +38,10 @@ var hostsGroups map[string][]string
 var commandNames []string
 var hostNames []string
 var defaults map[string]map[string]string
+
+func (c Command) IsAdHoc() bool {
+	return c.name == adHocCommandName
+}
 
 func Init(profile string) {
 	cfg := config.DefaultConfig

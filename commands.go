@@ -19,7 +19,7 @@ var GlobalFlags = []cli.Flag{
 }
 
 func getProfile(c *cli.Context) string {
-	profile := c.String(profileArgName)
+	profile := c.GlobalString(profileArgName)
 	if profile == "" {
 		profile = os.Getenv("VMX_DEFAULT_PROFILE")
 	}
@@ -33,12 +33,17 @@ var Commands = []cli.Command{
 		Usage: "Run custom command",
 		Description: `Example of usage is below:
     run logs    => run logs command defined in the ~/.vmx/commands`,
-		Action:          command.CmdRun,
-		Flags:           []cli.Flag{},
+		Action: command.CmdRun,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  fmt.Sprintf("%s, f", command.FollowArgName),
+				Usage: "flag indicates that the provided command will not exit, but will follow the output instead",
+			},
+		},
 		SkipFlagParsing: true,
 		BashComplete: func(c *cli.Context) {
 			var names []string
-			if c.NArg() == 0 {
+			if c.NArg() == 0 || (c.NArg() == 1 && command.ContainsFollow(c)) {
 				names = command.GetHostNames()
 			} else {
 				names = command.GetCommandNames()

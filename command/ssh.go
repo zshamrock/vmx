@@ -20,7 +20,7 @@ const (
 )
 
 // SSH implements scp connection to the remote instance
-func SSH(sshConfig *ssh_config.Config, host, command string, ch chan ExecOutput) {
+func SSH(sshConfig *ssh_config.Config, host, command string, follow bool, ch chan ExecOutput) {
 	fmt.Printf("Running command: %s on host %s\n", command, host)
 	user, _ := sshConfig.Get(host, SshConfigUserKey)
 	hostname, _ := sshConfig.Get(host, SshConfigHostnameKey)
@@ -49,7 +49,11 @@ func SSH(sshConfig *ssh_config.Config, host, command string, ch chan ExecOutput)
 	}
 	defer session.Close()
 	var output strings.Builder
-	session.Stdout = &output
+	if follow {
+		session.Stdout = os.Stdout
+	} else {
+		session.Stdout = &output
+	}
 	session.Stderr = os.Stderr
 	session.Stdin = os.Stdin
 	if err := session.Run(command); err != nil {
