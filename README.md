@@ -32,7 +32,7 @@ Table of Contents
 =================
 
 * [Config](#config)
-* [Profiles] (#profiles)
+* [Profiles](#profiles)
 * [Commands](#commands)
    * [run command](#run-command)
       * ["commands" file](#commands-file)
