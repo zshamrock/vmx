@@ -1,5 +1,5 @@
 # vmx
-Remote instances management tool over SSH written in Go ![Travis](https://img.shields.io/travis/zshamrock/vmx.svg)
+Remote instances management tool over SSH written in Go [![Build Status](https://travis-ci.org/zshamrock/vmx.svg?branch=master)](https://travis-ci.org/zshamrock/vmx)
 
 ```
 $ vmx
