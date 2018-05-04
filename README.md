@@ -81,11 +81,17 @@ There are 2 available commands: `list` and `run`.
 [command-name]
 workingdir=
 command=
+follow=
 ```
 
 where `command-name` is the command name which will be used in the `run` command, i.e. `vmx run host-name command-name`.
 
 `workingdir` is optional, i.e. you can provide the working dir to change before running the command.
+
+`follow` is also the optional key, boolean value is expected there, like 1|0, true|false, yes|no, which has the same
+meaning as `--follow` CLI argument, i.e. follows the output of the command execution. The purpose of this key is to
+define the "follow" flag as part of the command definition in the file and not specify it very time over `--profile`
+when command is run.
 
 `command` is the required field.
 
