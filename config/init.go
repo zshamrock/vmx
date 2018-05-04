@@ -17,6 +17,7 @@ const (
 	DefaultsConfigFileName   = "defaults"
 	SectionCommandKeyName    = "command"
 	SectionWorkingDirKeyName = "workingdir"
+	SectionFollowKeyName     = "follow"
 
 	defaultSectionName = "DEFAULT"
 )
@@ -54,10 +55,15 @@ func readCommands(config VMXConfig, profile string) map[string]core.Command {
 		if section.HasKey(SectionWorkingDirKeyName) {
 			workingDir = section.Key(SectionWorkingDirKeyName).String()
 		}
+		follow := false
+		if section.HasKey(SectionFollowKeyName) {
+			follow, _ = section.Key(SectionFollowKeyName).Bool()
+		}
 		commands[name] = core.Command{
 			Name:                 name,
 			Command:              section.Key(SectionCommandKeyName).String(),
 			WorkingDir:           workingDir,
+			Follow:               follow,
 			RequiresConfirmation: requiresConfirmation,
 		}
 	}

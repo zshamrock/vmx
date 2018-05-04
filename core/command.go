@@ -6,6 +6,7 @@ const (
 
 type Command struct {
 	Name, Command, WorkingDir string
+	Follow                    bool
 	RequiresConfirmation      bool
 }
 

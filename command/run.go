@@ -32,6 +32,9 @@ func CmdRun(c *cli.Context) {
 	CheckUpdate(c)
 	follow := ContainsFollow(c)
 	command, extraArgs := getCommand(c, follow)
+	if !follow && command.Follow {
+		follow = command.Follow
+	}
 	hosts := getHosts(c, follow)
 	var confirmation string
 	if command.RequiresConfirmation {
