@@ -1,0 +1,24 @@
+Host app-dev1
+    User vmx
+    Hostname 192.168.1.1
+Host db-dev1
+    User vmx
+    Hostname 192.168.1.2
+Host app1-prod1
+    User vmx
+    Hostname 192.168.1.3
+Host app1-prod2
+    User vmx
+    Hostname 192.168.1.4
+Host db-prod1
+    User vmx
+    Hostname 192.168.1.5
+Host db-prod2
+    User vmx
+    Hostname 192.168.1.6
+Host app2-prod1
+    User vmx
+    Hostname 192.168.1.7
+Host app2-prod2
+    User vmx
+    Hostname 192.168.1.8

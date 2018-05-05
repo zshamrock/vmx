@@ -1,0 +1,6 @@
+[all]
+workingdir=/opt/app
+
+#
+[app2-prod*]
+workingdir=/opt/app2

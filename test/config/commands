@@ -1,0 +1,16 @@
+[logs]
+command=cat logs/app.log
+
+[app-logs]
+command=tail -f -n 10 logs/app.log
+
+[follow-logs]
+workingdir=/opt/app1
+command=tail -f -n 10 logs/app1.log
+follow=true
+
+[redeploy!]
+command=./redeploy.sh
+
+[disk-space]
+command=df -h
