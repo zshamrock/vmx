@@ -15,12 +15,12 @@ func TestReadConfig(t *testing.T) {
 		"logs": {
 			Name:       "logs",
 			Command:    "cat logs/app.log",
-			WorkingDir: "/opt/app",
+			WorkingDir: "",
 		},
 		"app-logs": {
 			Name:       "app-logs",
 			Command:    "tail -f -n 10 logs/app.log",
-			WorkingDir: "/opt/app",
+			WorkingDir: "",
 		},
 		"follow-logs": {
 			Name:       "follow-logs",
@@ -31,13 +31,13 @@ func TestReadConfig(t *testing.T) {
 		"redeploy": {
 			Name:                 "redeploy",
 			Command:              "./redeploy.sh",
-			WorkingDir:           "/opt/app",
+			WorkingDir:           "",
 			RequiresConfirmation: true,
 		},
 		"disk-space": {
 			Name:       "disk-space",
-			Command:    "command=df -h",
-			WorkingDir: "/opt/app",
+			Command:    "df -h",
+			WorkingDir: "",
 		},
 	}
 	equal := reflect.DeepEqual(commands, expected)
