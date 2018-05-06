@@ -2,9 +2,9 @@
 package config
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/go-test/deep"
 	"github.com/zshamrock/vmx/core"
 )
 
@@ -40,9 +40,7 @@ func TestReadConfig(t *testing.T) {
 			WorkingDir: "",
 		},
 	}
-	equal := reflect.DeepEqual(commands, expected)
-	if !equal {
-		t.Errorf("Read commands %v from the 'commands' config file don't match expected commands %v",
-			commands, expected)
+	if diff := deep.Equal(commands, expected); diff != nil {
+		t.Error(diff)
 	}
 }
