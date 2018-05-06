@@ -6,5 +6,6 @@ go:
  - "1.10.x"
 
 env:
-  - VMX_HOME=$HOME/gopath/src/github.com/zshamrock/vmx/test/config
-  - VMX_SSH_CONFIG_HOME=$HOME/gopath/src/github.com/zshamrock/vmx/test/ssh
+  global:
+    - VMX_HOME=$HOME/gopath/src/github.com/zshamrock/vmx/test/config
+    - VMX_SSH_CONFIG_HOME=$HOME/gopath/src/github.com/zshamrock/vmx/test/ssh
