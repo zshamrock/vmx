@@ -31,7 +31,7 @@ type execOutput struct {
 func CmdRun(c *cli.Context) {
 	CheckUpdate(c)
 	follow := ContainsFollow(c)
-	command, extraArgs := getCommand(c, follow)
+	command := getCommand(c, follow)
 	hosts := getHosts(c, follow)
 	var confirmation string
 	if command.RequiresConfirmation {
@@ -44,7 +44,7 @@ func CmdRun(c *cli.Context) {
 	}
 	cmd := command.Command
 	if command.WorkingDir != "" {
-		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s", command.WorkingDir, fmt.Sprintf(cmd, extraArgs)))
+		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s", command.WorkingDir, cmd))
 	}
 	fmt.Printf("Running command: %s from %s on %v\n", command.Command, command.WorkingDir, hosts)
 	sshConfig := readSSHConfig(config.DefaultConfig)
@@ -77,7 +77,7 @@ func CmdRun(c *cli.Context) {
 		fmt.Println(output.output)
 	}
 }
-func getCommand(c *cli.Context, follow bool) (core.Command, string) {
+func getCommand(c *cli.Context, follow bool) core.Command {
 	args := c.Args()
 	actualCommandNameArgsIndex := getActualArgsIndex(commandNameArgsIndex, follow)
 	commandName := strings.TrimSpace(args.Get(actualCommandNameArgsIndex))
@@ -101,7 +101,10 @@ func getCommand(c *cli.Context, follow bool) (core.Command, string) {
 		}
 		extraArgs = strings.Join(args.Tail()[extraArgsIndex:], " ")
 	}
-	return command, extraArgs
+	if extraArgs != "" {
+		command.Command = fmt.Sprintf(command.Command, extraArgs)
+	}
+	return command
 }
 func getActualArgsIndex(argsIndex int, follow bool) int {
 	actualArgsIndex := argsIndex
