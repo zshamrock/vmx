@@ -10,15 +10,21 @@ import (
 )
 
 func TestGetCommand(t *testing.T) {
-	followFlags := []string{"-f", "--follow"}
+	followFlags := []string{"", "-f", "--follow"}
 	for _, followFlag := range followFlags {
-		flags := flag.FlagSet{}
-		flags.Bool("follow", false, "")
 		commandText := "tail -f -n 10 logs/rest.log"
-		flags.Parse([]string{"--", followFlag, "dev", commandText})
+		arguments := []string{"dev", commandText}
+		flags := flag.FlagSet{}
+		follow := false
+		if followFlag != "" {
+			flags.Bool("follow", false, "")
+			follow = true
+			arguments = append([]string{"--", followFlag}, arguments...)
+		}
+		flags.Parse(arguments)
 		app := cli.NewApp()
 		context := cli.NewContext(app, &flags, nil)
-		command, extraArgs := getCommand(context, true)
+		command, extraArgs := getCommand(context, follow)
 		if !command.IsAdHoc() {
 			t.Errorf("Command name should be ad-hoc, but got %s", command.Name)
 		}
@@ -37,12 +43,12 @@ func TestGetCommandExtraArgs(t *testing.T) {
 	for _, followFlag := range followFlags {
 		commandText := "logs-extra"
 		extraText := "rest.log"
+		arguments := []string{"dev", commandText, extraText}
 		flags := flag.FlagSet{}
 		follow := false
-		arguments := []string{"dev", commandText, extraText}
 		if followFlag != "" {
-			follow = true
 			flags.Bool("follow", false, "")
+			follow = true
 			arguments = append([]string{"--", followFlag}, arguments...)
 		}
 		flags.Parse(arguments)
