@@ -44,7 +44,7 @@ func CmdRun(c *cli.Context) {
 	}
 	cmd := command.Command
 	if command.WorkingDir != "" {
-		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s %s", command.WorkingDir, cmd, extraArgs))
+		cmd = strings.TrimSpace(fmt.Sprintf("cd %s && %s", command.WorkingDir, fmt.Sprintf(cmd, extraArgs)))
 	}
 	fmt.Printf("Running command: %s from %s on %v\n", command.Command, command.WorkingDir, hosts)
 	sshConfig := readSSHConfig(config.DefaultConfig)

@@ -39,6 +39,11 @@ func TestReadConfig(t *testing.T) {
 			Command:    "df -h",
 			WorkingDir: "",
 		},
+		"logs-extra": {
+			Name:       "logs-extra",
+			Command:    "tail -f -n 10 logs/%s",
+			WorkingDir: "",
+		},
 	}
 	if diff := deep.Equal(commands, expected); diff != nil {
 		t.Error(diff)
