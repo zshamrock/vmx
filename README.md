@@ -145,14 +145,17 @@ Confirm to run "redeploy" command on [host-name] - yes/no or y/n:
 
 #### Pass extra arguments to the command
 
-Any extra arguments passed to the the `run` command will be then passed to the actual command to run. Here the example:
+Any extra arguments passed to the the `run` command will be then passed to the actual command to run replacing the
+substitution `%s` in the command name from the config file.
+
+Here is the example:
 
 ```
 # commands file
 ...
 [logs]
 workingdir=/opt/app/logs
-command=tail -n 10
+command=tail -n 10 %s
 ...
 ```
 
@@ -163,7 +166,8 @@ vmx run host-name logs -f rest.log
 ```
 
 it will be interpreted as `tail -n 10 -f rest.log` (i.e. all extra arguments are passed to the `command` defined in the
-`commands` file).
+`commands` file, more precisely replacing the `%s` placeholder, so it can be in any place of the command, not only in
+the end).
 
 #### Running the ad-hoc command
 

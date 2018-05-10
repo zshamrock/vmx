@@ -37,28 +37,34 @@ func TestGetCommand(t *testing.T) {
 func TestGetCommandExtraArgs(t *testing.T) {
 	config.Init("")
 	followFlags := []string{"", "-f", "--follow"}
+	commandsData := []map[string]string{
+		{"name": "logs-extra1", "extra": "rest.log", "command": "tail -f -n 10 logs/rest.log"},
+		{"name": "logs-extra2", "extra": "5", "command": "tail -f -n 5 logs/app.log"},
+	}
 	for _, followFlag := range followFlags {
-		commandText := "logs-extra"
-		extraText := "rest.log"
-		arguments := []string{"dev", commandText, extraText}
-		flags := flag.FlagSet{}
-		follow := false
-		if followFlag != "" {
-			flags.Bool("follow", false, "")
-			follow = true
-			arguments = append([]string{"--", followFlag}, arguments...)
-		}
-		flags.Parse(arguments)
-		app := cli.NewApp()
-		context := cli.NewContext(app, &flags, nil)
-		command := getCommand(context, follow)
-		expectedCommand := core.Command{
-			Name:       "logs-extra",
-			Command:    "tail -f -n 10 logs/" + extraText,
-			WorkingDir: "",
-		}
-		if command != expectedCommand {
-			t.Errorf("Command should be %v, but got %v", expectedCommand, command)
+		for _, commandData := range commandsData {
+			commandText := commandData["name"]
+			extraText := commandData["extra"]
+			arguments := []string{"dev", commandText, extraText}
+			flags := flag.FlagSet{}
+			follow := false
+			if followFlag != "" {
+				flags.Bool("follow", false, "")
+				follow = true
+				arguments = append([]string{"--", followFlag}, arguments...)
+			}
+			flags.Parse(arguments)
+			app := cli.NewApp()
+			context := cli.NewContext(app, &flags, nil)
+			command := getCommand(context, follow)
+			expectedCommand := core.Command{
+				Name:       commandData["name"],
+				Command:    commandData["command"],
+				WorkingDir: "",
+			}
+			if command != expectedCommand {
+				t.Errorf("Command should be %v, but got %v", expectedCommand, command)
+			}
 		}
 	}
 }

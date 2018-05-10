@@ -39,9 +39,14 @@ func TestReadConfig(t *testing.T) {
 			Command:    "df -h",
 			WorkingDir: "",
 		},
-		"logs-extra": {
-			Name:       "logs-extra",
+		"logs-extra1": {
+			Name:       "logs-extra1",
 			Command:    "tail -f -n 10 logs/%s",
+			WorkingDir: "",
+		},
+		"logs-extra2": {
+			Name:       "logs-extra2",
+			Command:    "tail -f -n %s logs/app.log",
 			WorkingDir: "",
 		},
 	}

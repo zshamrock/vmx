@@ -15,5 +15,8 @@ command=./redeploy.sh
 [disk-space]
 command=df -h
 
-[logs-extra]
+[logs-extra1]
 command=tail -f -n 10 logs/%s
+
+[logs-extra2]
+command=tail -f -n %s logs/app.log
