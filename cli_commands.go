@@ -58,8 +58,16 @@ var Commands = []cli.Command{
 		Name:  "list",
 		Usage: "List available custom commands",
 		Description: `Example of usage is below:
-    list    => list available custom commands defined in the ~/.vmx/commands`,
+    list    => list available custom commands defined in the ~/.vmx/commands or in the corresponding profile if specified`,
 		Action: command.CmdList,
+		Flags:  []cli.Flag{},
+	},
+	{
+		Name:  "hosts",
+		Usage: "List available hosts",
+		Description: `Example of usage is below:
+    hosts    => list available hosts defined in the ~/.vmx/hosts or in the corresponding profile if specified`,
+		Action: command.CmdHosts,
 		Flags:  []cli.Flag{},
 	},
 }

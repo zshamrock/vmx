@@ -87,6 +87,7 @@ func readHostsGroups(config VMXConfig, profile string) map[string][]string {
 			continue
 		}
 		groups[name] = section.KeyStrings()
+		sort.Strings(groups[name])
 	}
 	return groups
 }
