@@ -20,3 +20,6 @@ command=tail -f -n 10 logs/%s
 
 [logs-extra2]
 command=tail -f -n %s logs/app.log
+
+[logs-extra3]
+command=tail -f logs/app.log

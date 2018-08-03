@@ -39,7 +39,8 @@ func TestGetCommandExtraArgs(t *testing.T) {
 	followFlags := []string{"", "-f", "--follow"}
 	commandsData := []map[string]string{
 		{"name": "logs-extra1", "extra": "rest.log", "command": "tail -f -n 10 logs/rest.log"},
-		{"name": "logs-extra2", "extra": "5", "command": "tail -f -n 5 logs/app.log 5"},
+		{"name": "logs-extra2", "extra": "5", "command": "tail -f -n 5 logs/app.log"},
+		{"name": "logs-extra3", "extra": "append test", "command": "tail -f logs/app.log append test"},
 	}
 	for _, followFlag := range followFlags {
 		for _, commandData := range commandsData {
