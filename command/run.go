@@ -19,6 +19,7 @@ const (
 	optionalFollowArgsIndex = 0
 	hostsGroupArgsIndex     = 0
 	commandNameArgsIndex    = 1
+	extraArgsPlaceholder    = "%s"
 	FollowArgName           = "follow"
 )
 
@@ -102,7 +103,11 @@ func getCommand(c *cli.Context, follow bool) core.Command {
 		extraArgs = strings.Join(args.Tail()[extraArgsIndex:], " ")
 	}
 	if extraArgs != "" {
-		command.Command = fmt.Sprintf(command.Command, extraArgs)
+		if strings.Contains(command.Command, extraArgsPlaceholder) {
+			command.Command = fmt.Sprintf(command.Command, extraArgs)
+		} else {
+			command.Command += " " + extraArgs
+		}
 	}
 	return command
 }
