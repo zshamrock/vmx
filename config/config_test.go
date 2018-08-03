@@ -49,6 +49,11 @@ func TestReadConfig(t *testing.T) {
 			Command:    "tail -f -n %s logs/app.log",
 			WorkingDir: "",
 		},
+		"logs-extra3": {
+			Name:       "logs-extra3",
+			Command:    "tail -f logs/app.log",
+			WorkingDir: "",
+		},
 	}
 	if diff := deep.Equal(commands, expected); diff != nil {
 		t.Error(diff)
