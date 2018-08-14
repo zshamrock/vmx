@@ -31,6 +31,7 @@ GLOBAL OPTIONS:
 Table of Contents
 =================
 
+* [Installation](#installation)
 * [Config](#config)
 * [Profiles](#profiles)
 * [Commands](#commands)
@@ -46,6 +47,12 @@ Table of Contents
 * [Bash auto completion](#bash-auto-completion)
 * [Credits](#credits)
 
+
+## Installation
+
+Use the `go` command:
+
+	$ go get github.com/zshamrock/vmx
 
 ## Config
 
