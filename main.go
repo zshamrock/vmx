@@ -12,7 +12,8 @@ func main() {
 	app := cli.NewApp()
 	app.Name = Name
 	app.Version = Version
-	app.Authors = []cli.Author{{Name: "Aliaksandr Kazlou"}}
+	app.Authors = []cli.Author{{Name: "Aliaksandr Kazlou", Email: "aliaksandr.kazlou@gmail.com"}}
+	app.Metadata = map[string]interface{}{"GitHub": "https://github.com/zshamrock/vmx"}
 	app.Usage = usage()
 	app.EnableBashCompletion = true
 
@@ -30,5 +31,6 @@ func main() {
 func usage() string {
 	return fmt.Sprintf(`
 vmx is a tool for interacting with cloud instances (like AWS EC2, for example) over SSH
+[https://github.com/zshamrock/vmx]
 `)
 }
