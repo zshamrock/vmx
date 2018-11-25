@@ -20,6 +20,7 @@ const (
 	hostsGroupArgsIndex     = 0
 	commandNameArgsIndex    = 1
 	extraArgsPlaceholder    = "%s"
+	hostsSeparator          = ","
 	FollowArgName           = "follow"
 )
 
@@ -126,8 +127,11 @@ func ContainsFollow(c *cli.Context) bool {
 func getHosts(c *cli.Context, follow bool) []string {
 	args := c.Args()
 	actualHostsGroupArgsIndex := getActualArgsIndex(hostsGroupArgsIndex, follow)
-	hostsGroup := strings.TrimSpace(args.Get(actualHostsGroupArgsIndex))
-	hosts := getHostsByGroup(c, hostsGroup)
+	hostsGroups := strings.Split(strings.TrimSpace(args.Get(actualHostsGroupArgsIndex)), hostsSeparator)
+	hosts := make([]string, 0, len(hostsGroups))
+	for _, hostsGroup := range hostsGroups {
+		hosts = append(hosts, getHostsByGroup(c, hostsGroup)...)
+	}
 	sort.Strings(hosts)
 	return hosts
 }
