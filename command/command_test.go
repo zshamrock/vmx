@@ -2,6 +2,7 @@ package command
 
 import (
 	"flag"
+	"github.com/go-test/deep"
 	"testing"
 
 	"github.com/zshamrock/vmx/config"
@@ -81,5 +82,17 @@ func TestContainsFollow(t *testing.T) {
 		if !follow {
 			t.Error("Should contain follow")
 		}
+	}
+}
+
+func TestParseMultipleHosts(t *testing.T) {
+	flags := flag.FlagSet{}
+	flags.Parse([]string{"dev1,dev2", "tail -f -n 10 logs/rest.log"})
+	app := cli.NewApp()
+	context := cli.NewContext(app, &flags, nil)
+	hosts := getHosts(context, false)
+	expected := []string{"dev1", "dev2"}
+	if diff := deep.Equal(hosts, expected); diff != nil {
+		t.Error(diff)
 	}
 }
