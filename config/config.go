@@ -9,7 +9,7 @@ const (
 	vmxHomeEnvVar          = "VMX_HOME"
 	defaultVmxHome         = "${HOME}/.vmx"
 	vmxSSHConfigHomeEnvVar = "VMX_SSH_CONFIG_HOME"
-	defaultSSHConfigHome   = "${HOME}/.ssh"
+	DefaultSSHConfigHome   = "${HOME}/.ssh"
 
 	CommandNameConfirmationSuffix = "!"
 	HostsGroupChildrenSuffix      = ":children"
@@ -31,7 +31,7 @@ func (c VMXConfig) GetDir(profile string) string {
 var DefaultConfig VMXConfig
 
 func init() {
-	DefaultConfig = VMXConfig{os.ExpandEnv(defaultVmxHome), os.ExpandEnv(defaultSSHConfigHome)}
+	DefaultConfig = VMXConfig{os.ExpandEnv(defaultVmxHome), os.ExpandEnv(DefaultSSHConfigHome)}
 	vmxHome, ok := os.LookupEnv(vmxHomeEnvVar)
 	if ok {
 		DefaultConfig.Dir = vmxHome

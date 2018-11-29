@@ -153,7 +153,7 @@ func GetHostNames() []string {
 		}
 
 		// Reading hosts from ~/.ssh/config
-		f, _ := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+		f, _ := os.Open(filepath.Join(DefaultConfig.SSHConfigDir, "config"))
 		cfg, _ := ssh_config.Decode(f)
 		for _, host := range cfg.Hosts {
 			for _, pattern := range host.Patterns {
